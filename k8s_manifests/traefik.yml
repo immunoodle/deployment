@@ -3,11 +3,13 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: traefik-account
+  namespace: immunoodle
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: traefik-role
+  namespace: immunoodle
 rules:
   - apiGroups: [""]
     resources: ["services", "secrets", "nodes"]
@@ -26,6 +28,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: traefik-role-binding
+  namespace: immunoodle
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -33,12 +36,13 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: traefik-account
-    namespace: madi-sandbox
+    namespace: immunoodle
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: traefik-config
+  namespace: immunoodle
 data:
   traefik-extra-config.yml: |
     http:
@@ -53,6 +57,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: traefik-web-service
+  namespace: immunoodle
 spec:
   type: ClusterIP
   ports:
@@ -65,6 +70,7 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: traefik
+  namespace: immunoodle
   labels:
     app: traefik
 spec:
@@ -84,7 +90,7 @@ spec:
           args:
             - --providers.kubernetesingress
             - --providers.kubernetesingress.disableclusterscoperesources
-            - --providers.kubernetesingress.namespaces=madi-sandbox
+            - --providers.kubernetesingress.namespaces=immunoodle
             - --providers.file.filename=/opt/traefik-extra-config.yml
             - --log.level=DEBUG
             - --accesslog=true
