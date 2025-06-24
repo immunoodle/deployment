@@ -1,0 +1,49 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  labels:
+    app: worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: worker
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      imagePullSecrets:
+      - name: regcred
+      containers:
+        - image: 
+          name: worker
+          env:
+            - name: SQLALCHEMY_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: immunoodle
+                  key: SQLALCHEMY_DATABASE_URL
+            - name: REDIS_AUTH
+              valueFrom:
+                secretKeyRef:
+                  name: immunoodle
+                  key: REDIS_AUTH
+            - name: CELERY_BROKER_URL
+              value: "redis://:$(REDIS_AUTH)@redis:6379/0"
+            - name: CELERY_RESULT_BACKEND
+              value: "redis://:$(REDIS_AUTH)@redis:6379/0"
+          volumeMounts:
+          - mountPath: /data
+            name: data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: immunoodle

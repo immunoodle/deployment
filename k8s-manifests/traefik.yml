@@ -1,0 +1,118 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: traefik-account
+  namespace: immunoodle
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: traefik-role
+  namespace: immunoodle
+rules:
+  - apiGroups: [""]
+    resources: ["services", "secrets", "nodes"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["discovery.k8s.io"]
+    resources: ["endpointslices"]
+    verbs: ["list", "watch"]
+  - apiGroups: ["extensions", "networking.k8s.io"]
+    resources: ["ingresses", "ingressclasses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["extensions", "networking.k8s.io"]
+    resources: ["ingresses/status"]
+    verbs: ["update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: traefik-role-binding
+  namespace: immunoodle
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: traefik-role
+subjects:
+  - kind: ServiceAccount
+    name: traefik-account
+    namespace: immunoodle
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: traefik-config
+  namespace: immunoodle
+data:
+  traefik-extra-config.yml: |
+    http:
+      middlewares:
+        dex-account-stripprefix:
+          stripPrefix:
+            prefixes:
+              - "/dex/account"
+            forceSlash: false
+        data-portal-stripprefix:
+          stripPrefix:
+            prefixes:
+              - "/data-portal"
+            forceSlash: false
+        I-SPI-stripprefix:
+          stripPrefix:
+            prefixes:
+              - "/I-SPI"
+            forceSlash: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik-web-service
+  namespace: immunoodle
+spec:
+  type: ClusterIP
+  ports:
+    - targetPort: web
+      port: 80
+  selector:
+    app: traefik
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: traefik
+  namespace: immunoodle
+  labels:
+    app: traefik
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: traefik
+  template:
+    metadata:
+      labels:
+        app: traefik
+    spec:
+      serviceAccountName: traefik-account
+      containers:
+        - name: traefik
+          image: traefik:v3.2.2
+          args:
+            - --providers.kubernetesingress
+            - --providers.kubernetesingress.disableclusterscoperesources
+            - --providers.kubernetesingress.namespaces=immunoodle
+            - --providers.file.filename=/opt/traefik-extra-config.yml
+            - --log.level=DEBUG
+            - --accesslog=true
+            - --api.dashboard=false
+          ports:
+            - name: web
+              containerPort: 80
+          volumeMounts:
+            - name: config
+              mountPath: /opt/traefik-extra-config.yml
+              subPath: traefik-extra-config.yml
+      volumes:
+        - name: config
+          configMap:
+            name: traefik-config

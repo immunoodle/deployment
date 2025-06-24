@@ -1,0 +1,189 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dex
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1G
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dex
+  labels:
+    app: dex
+stringData:
+  config.yml: |
+    issuer: https://IMMUNOODLE_HOSTNAME/dex
+    storage:
+      type: sqlite3
+      config:
+        file: /var/dex/dex.db
+    web:
+      http: 0.0.0.0:5556
+    grpc:
+      addr: 0.0.0.0:5557
+      reflection: true
+    staticClients:
+    - name: 'Immunoodle'
+      id: IMMUNOODLE_OAUTH_CLIENT_ID
+      secret: IMMUNOODLE_OAUTH_SECRET
+      redirectURIs:
+      - 'https://IMMUNOODLE_HOSTNAME/mlr/callback'
+      - 'https://IMMUNOODLE_HOSTNAME/whoami/oauth2/callback'
+    staticPasswords:
+    - email: "admin@example.com"
+      hash: "IMMUNOODLE_ADMIN_PASSWORD_HASH"
+      username: "admin"
+      userID: "08a8684b-db88-4b73-90a9-3cd1661f5466"
+    enablePasswordDB: true
+    oauth2:
+      passwordConnector: local
+      skipApprovalScreen: true
+    frontend:
+      dir: /var/dex/web
+      extra:
+        signup_url: "/dex/account/signup"
+        forgot_password_url: "/dex/account/forgot_password"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dex
+  labels:
+    app: dex
+spec:
+  type: ClusterIP
+  ports:
+  - port: 5556
+    name: dex
+  - port: 5557
+    name: grpc
+  selector:
+    app: dex
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+ name: dex
+spec:
+ rules:
+ - http:
+     paths:
+     - path: /dex
+       pathType: Prefix
+       backend:
+         service:
+           name: dex
+           port:
+             number: 5556
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dex
+  labels:
+    app: dex
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dex
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: dex
+    spec:
+      imagePullSecrets:
+      - name: regcred
+      containers:
+      - image: dexidp/dex:v2.41.1-alpine
+        imagePullPolicy: Always
+        name: dex
+        ports:
+        - containerPort: 5556
+          name: dex
+        - containerPort: 5557
+          name: grpc
+        volumeMounts:
+        - name: dex-config
+          mountPath: /etc/dex/config.docker.yaml
+          subPath: config.yml
+        - name: storage
+          mountPath: /var/dex
+      volumes:
+      - name: dex-config
+        secret:
+          secretName: dex
+      - name: storage
+        persistentVolumeClaim:
+          claimName: dex
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dex-account
+  labels:
+    app: dex-account
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    name: dex-account
+  selector:
+    app: dex-account
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dex-account
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: dex-account-stripprefix@file
+spec:
+ rules:
+ - http:
+     paths:
+     - path: /dex/account
+       pathType: Prefix
+       backend:
+         service:
+           name: dex-account
+           port:
+             number: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dex-account
+  labels:
+    app: dex-account
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dex-account
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: dex-account
+    spec:
+      containers:
+      - image: ghcr.io/immunoodle/signup:sha256-041117b0b27b5653a481ef70a56327c52bb4c20b45f1cc35fc823fa57335d0a8
+        imagePullPolicy: Always
+        name: dex-account
+        env:
+        - name: REDIRECT_URL_AFTER_SIGNUP
+          value: "https://IMMUNOODLE_HOSTNAME/whoami"
+        - name: GRPC_ADDRESS
+          value: "dex:5557"
+        ports:
+        - containerPort: 8080
+          name: dex-account
