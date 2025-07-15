@@ -6,7 +6,7 @@ If you don't have a container orchestration platform, you can use [k3s](https://
 
 Deploy the resources in the order listed in the Table Of Contents, which is broken into two parts - Infrastructure and Application.
 
-Start with Infrastructure below and then continue onto [Application](https://github.com/immunoodle/deployment#Application
+Start with Infrastructure below and then continue onto [Application](https://github.com/immunoodle/deployment#Application)
 
 ## Table of Contents - Infrastructure
 
@@ -224,7 +224,8 @@ kubectl apply -f k8s-manifests/traefik.yml
 ```
 
 ### Whoami
-Whoami let's us test the components instaled thus far
+
+Whoami let's us test the components installed thus far
 
 
 ```
@@ -240,8 +241,13 @@ Once the Immunoodle Infrastructure has been deployed and tested, move onto Imuno
 ## Table of Contents - Immunodle Application
 
 [SignUp](https://github.com/immunoodle/deployment#Signup)
+
 [Worker](https://github.com/immunoodle/deployment#Worker)
+
 [API](https://github.com/immunoodle/deployment#API)
+
+[Data Portal](https://github.com/immunoodle/deployment#DataPortal)
+
 [I-SPI](https://github.com/immunoodle/deployment#I-SPI)
 
 ### Signup
@@ -268,7 +274,7 @@ API provides API endpoints for data processing in the Immunoodle application sta
 kubectl apply -f k8s-manifests/api.yml
 ```
 
-### Data Portal
+### DataPortal
 
 Data Portal 
 
