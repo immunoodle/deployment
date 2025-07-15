@@ -47,7 +47,7 @@ data:
     #sed -Ei "s/^(lc_numeric.*)/#\1/" $PGDATA/postgresql.conf
     #sed -Ei "s/^(lc_monetary.*)/#\1/" $PGDATA/postgresql.conf
 
-    openssl req -new -newkey rsa:4096 -nodes -out $PGDATA/server.csr -keyout $PGDATA/server.key -subj "/C=US/ST=New Hampshire/L=Hanover/O=Dartmouth College/CN=*.c.dartmouth.edu"
+    openssl req -new -newkey rsa:4096 -nodes -out $PGDATA/server.csr -keyout $PGDATA/server.key -subj "CN=postgres.immunoodle.local"
     openssl x509 -in $PGDATA/server.csr -out $PGDATA/server.crt -req -signkey $PGDATA/server.key -days 3650
     chmod 600 $PGDATA/server.key
     chown postgres:postgres $PGDATA/server.key

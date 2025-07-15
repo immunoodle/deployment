@@ -52,6 +52,16 @@ data:
             prefixes:
               - "/dex/account"
             forceSlash: false
+        data-portal-stripprefix:
+          stripPrefix:
+            prefixes:
+              - "/data-portal"
+            forceSlash: false
+        I-SPI-stripprefix:
+          stripPrefix:
+            prefixes:
+              - "/I-SPI"
+            forceSlash: false
 ---
 apiVersion: v1
 kind: Service

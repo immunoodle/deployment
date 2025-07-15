@@ -1,0 +1,146 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: data-portal
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: data-portal-stripprefix@file
+spec:
+  rules:
+  - http:
+      paths:
+      - pathType: Prefix
+        path: "/data-portal"
+        backend:
+          service:
+            name: data-portal
+            port:
+              number: 3838
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-portal
+  labels:
+    app: data-portal
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3838
+  selector:
+    app: data-portal
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-portal
+  labels:
+    app: data-portal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-portal
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: data-portal
+    spec:
+      containers:
+        - image: 
+          env:
+            - name: db
+              value: "postgres"
+            - name: db_host
+              value: "postgresql.immunoodle.local"
+            - name: RETICULATE_PYTHON
+              value: "/opt/miniconda/envs/project_py_env/bin/python"
+            - name: db_port
+              value: "5432"
+            - name: db_userid_x
+              value: ???
+            - name: db_pwd_x
+              valueFrom:
+                secretKeyRef:
+                  name: immunoodle
+                  key: db_pwd_x
+            - name: DB_NAME
+              value: "postgres"
+            - name: DB_HOST
+              value: "postgresql.immunoodle.local"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_USER
+              value: ???
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: immunoodle
+                  key: db_pwd_x
+            - name: upload_template_path
+              value: "/data/uploaded_templates"
+            - name: upload_file_path
+              value: "/data/associate_files"
+            - name: blank_template_path
+              value: "/data/review_templates"
+            - name: immunoodle_api_key
+              valueFrom:
+                secretKeyRef:
+                  name: immunoodle
+                  key: immunoodle_api_key
+            - name: AUTH0_USE
+              value: ???
+            - name: AUTH0_USER
+              value: ???
+            - name: AUTH0_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: immunoodle
+                  key: AUTH0_KEY
+            - name: AUTH0_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: immunoodle
+                  key: AUTH0_SECRET
+            - name: AUTH0_REMOTE_URL
+              value: "https://iummunoodle.local/"
+            - name: immunoodle_toolset_url
+              value: ??
+            - name: SHINY_LOG_LEVEL
+              value: DEBUG
+            - name: SHINY_LOG_STDERR
+              value: "1"
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: immunoodle
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: immunoodle
+                  key: AWS_SECRET_ACCESS_KEY
+            - name: AWS_DEFAULT_REGION
+              value: ??
+            - name: S3_BUCKET_NAME
+              value: ??
+            - name: DEX_ISSUER
+              value: "https://immunoodle.local/dex"
+            - name: DEX_CLIENT_ID
+              value: ???
+            - name: DEX_CLIENT_SECRET
+              value: ???
+            - name: APP_REDIRECT_URI
+              value: "https://immunoodle.local/"
+            - name: HOSTNAME
+              value: "https://immunoodle.local/"
+            - name: DEX_LOGOUT_ENDPOINT
+              value: "https://immunoodle.local/"
+          ports:
+          - containerPort: 3838
+            name: shiny

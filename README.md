@@ -4,9 +4,11 @@ This repo provides the instructions and Kubernetes manifests to deploy Immunoodl
 
 If you don't have a container orchestration platform, you can use [k3s](https://rancher.com/docs/k3s/latest/en/) to deploy . Instructions are provided further below in this README. 
 
-Deploy the resources in the order listed in the Table Of Contents.
+Deploy the resources in the order listed in the Table Of Contents, which is broken into two parts - Infrastructure and Application.
 
-## Table of Contents
+Start with Infrastructure below and then continue onto [Application](https://github.com/immunoodle/deployment#Application
+
+## Table of Contents - Infrastructure
 
 [k3s](https://github.com/immunoodle/deployment#k3s) **Only needed if you don't have a Kubernetes environment for deployment**
 
@@ -194,7 +196,7 @@ openssl pkcs12 -export -out immunoodle.pfx -inkey cert.key -in cert.crt
 PostgresQL is used for backing database for Dex for Auth and for the various Immunoodle Components.
 
 ```
-kubectl apply -f k8s_manifests/postgresql.yml
+kubectl apply -f k8s-manifests/postgresql.yml
 ```
 
 ### Dex
@@ -202,7 +204,7 @@ kubectl apply -f k8s_manifests/postgresql.yml
 Dex is used for auth for the Immunoodle Components
 
 ```
-kubectl apply -f k8s_manifests/dex.yml
+kubectl apply -f k8s-manifests/dex.yml
 ```
 
 ### Redis
@@ -210,7 +212,7 @@ kubectl apply -f k8s_manifests/dex.yml
 Redis is the key-value database for Immunoodle
 
 ```
-kubectl apply -f k8s_manifests/redis.yml
+kubectl apply -f k8s-manifests/redis.yml
 ```
 
 ### Traefik
@@ -218,7 +220,7 @@ kubectl apply -f k8s_manifests/redis.yml
 Traefik is a Ingress Controller that provides access to the various Immunoodle Components
 
 ```
-kubectl apply -f k8s_manifests/traefik.yml
+kubectl apply -f k8s-manifests/traefik.yml
 ```
 
 ### Whoami
@@ -226,5 +228,67 @@ Whoami let's us test the components instaled thus far
 
 
 ```
-kubectl apply -f k8s_manifests/traefik.yml
+kubectl apply -f k8s-manifests/whoami.yml
 ```
+
+Using the whoami application confirm the basic components such as traefik and cert-manager work thus far.
+
+Once the Immunoodle Infrastructure has been deployed and tested, move onto Imunoodle application deployment.
+
+## Immunoodle Application Deployment
+
+## Table of Contents - Immunodle Application
+
+[SignUp](https://github.com/immunoodle/deployment#Signup)
+[Worker](https://github.com/immunoodle/deployment#Worker)
+[API](https://github.com/immunoodle/deployment#API)
+[I-SPI](https://github.com/immunoodle/deployment#I-SPI)
+
+### Signup
+
+Signup creates and manages local users for the Immunoodle application stack as integrates with your choice of Oauth2 provider.
+
+```
+kubectl apply -f k8s-manifests/signup.yml
+```
+
+### Worker
+
+Worker handles task management for data processing in the Immunoodle application stack
+
+```
+kubectl apply -f k8s-manifests/worker.yml
+```
+
+### API
+
+API provides API endpoints for data processing in the Immunoodle application stack
+
+```
+kubectl apply -f k8s-manifests/api.yml
+```
+
+### Data Portal
+
+Data Portal 
+
+```
+kubectl apply -f k8s-manifests/data-portal.yml
+```
+
+
+### I-SPI
+
+I-SPI is an interactive R Shiny application for processing, analyzing, and visualizing Luminex bead-based immunoassay data. It provides a unified platform for managing serology experiments with robust features for data import, quality control, curve fitting, and results visualization. I-SPI depends on the rest of the Infrastructure and Application stacks being deployed first
+
+Set-up the database for the application first. Find the name of the postgresql pod in the immunoodle namespace:
+
+```
+kubectl exec -i <pod-name> -- psql -U <username> -d imunoodle < db-dumps/i-spi-db.sql
+```
+
+```
+kubectl apply -f k8s-manifests/ispi.yml
+```
+
+
