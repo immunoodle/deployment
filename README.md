@@ -236,7 +236,7 @@ Using the whoami application confirm the basic components such as traefik and ce
 
 Once the Immunoodle Infrastructure has been deployed and tested, move onto Imunoodle application deployment.
 
-## Immunoodle Application Deployment
+## Application 
 
 ## Table of Contents - Immunodle Application
 
