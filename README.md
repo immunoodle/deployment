@@ -198,7 +198,27 @@ Create a cert that can be imported into keychain or cert manager
 
 ```
 openssl pkcs12 -export -out immunoodle.pfx -inkey cert.key -in cert.crt
+
 ```
+
+### Traefik
+
+Traefik is a Ingress Controller that provides access to the various Immunoodle Components
+
+```
+kubectl apply -f k8s-manifests/traefik.yml
+```
+
+### Whoami
+
+Whoami let's us test the components installed thus far
+
+
+```
+kubectl apply -f k8s-manifests/whoami.yml
+```
+
+Using the whoami application confirm the basic components such as traefik and cert-manager work thus far.
 
 ### PostgreSQL 
 
@@ -224,24 +244,7 @@ Redis is the key-value database for Immunoodle
 kubectl apply -f k8s-manifests/redis.yml
 ```
 
-### Traefik
 
-Traefik is a Ingress Controller that provides access to the various Immunoodle Components
-
-```
-kubectl apply -f k8s-manifests/traefik.yml
-```
-
-### Whoami
-
-Whoami let's us test the components installed thus far
-
-
-```
-kubectl apply -f k8s-manifests/whoami.yml
-```
-
-Using the whoami application confirm the basic components such as traefik and cert-manager work thus far.
 
 Once the Immunoodle Infrastructure has been deployed and tested, move onto Imunoodle application deployment.
 
