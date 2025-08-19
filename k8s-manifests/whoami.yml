@@ -19,22 +19,14 @@ spec:
   selector:
     app: whoami
 ---
-apiVersion: bitnami.com/v1alpha1
-kind: SealedSecret
+apiVersion: v1
+kind: Secret
 metadata:
-  annotations:
-    sealedsecrets.bitnami.com/cluster-wide: "true"
-  creationTimestamp: null
   name: whoami
-spec:
-  encryptedData:
-    OAUTH2_PROXY_CLIENT_SECRET: secret_goes_here
-  template:
-    metadata:
-      annotations:
-        sealedsecrets.bitnami.com/cluster-wide: "true"
-      creationTimestamp: null
-      name: whoami
+stringData:
+  OAUTH2_PROXY_CLIENT_ID: IMMUNOODLE_OAUTH_CLIENT_ID
+  OAUTH2_PROXY_CLIENT_SECRET: IMMUNOODLE_OAUTH_SECRET
+  OAUTH2_PROXY_COOKIE_SECRET: IMMUNOODLE_OAUTH_COOKIE_SECRET
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -86,7 +78,10 @@ spec:
         - name: OAUTH2_PROXY_PROVIDER_DISPLAY_NAME
           value: 'Authentication Server'
         - name: OAUTH2_PROXY_CLIENT_ID
-          value: 'whoami-app'
+          valueFrom:
+            secretKeyRef:
+              name: whoami 
+              key: OAUTH2_PROXY_CLIENT_ID
         - name: OAUTH2_PROXY_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
@@ -99,13 +94,14 @@ spec:
         - name: OAUTH2_PROXY_COOKIE_PATH
           value: '/whoami'
         - name: OAUTH2_PROXY_REDIRECT_URL
-          value: 'https://immunoodle.local/whoami/oauth2/callback'
+          value: 'https://IMMUNOODLE_HOSTNAME/whoami/oauth2/callback'
         - name: OAUTH2_PROXY_OIDC_ISSUER_URL
-          value: 'https://imunoodle.local/dex'
+          value: 'https://IMMUNOODLE_HOSTNAME/dex'
         - name: OAUTH2_PROXY_COOKIE_SECRET
-          value: 'cookie-secret-goes-here'
-          # Generate OAUTH2_PROXY_COOKIE_SECRET with the following:
-          # python -c 'import os,base64; print(base64.urlsafe_b64encode(os.urandom(32)).decode())'
+          valueFrom:
+            secretKeyRef:
+              name: whoami
+              key: OAUTH2_PROXY_COOKIE_SECRET
         - name: OAUTH2_PROXY_COOKIE_SECURE
           value: "true"
         - name: OAUTH2_PROXY_SKIP_CLAIMS_FROM_PROFILE_URL
