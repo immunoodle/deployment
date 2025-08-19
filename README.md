@@ -41,6 +41,13 @@ firewall-cmd --reload
 curl -sfL https://get.k3s.io | sh -
 sudo kubectl get nodes
 ```
+
+#### Create immunoodle namespace
+
+```bash
+kubectl create ns immunoodle
+```
+
 #### Install cert-manager
 
 ```
@@ -57,11 +64,7 @@ Place your PEM encoded private key in a file named `tls.key`.
  kubectl create secret generic
  cert-official --from-file=tls.crt=tls.crt --from-file=tls.key=tls.key -n immunoodle
 ```
-Otherwise - create the immunoodle namespace and your own root CA:
-
-```bash
-kubectl create ns immunoodle
-```
+Otherwise - create your own root CA:
 
 ```
 apiVersion: cert-manager.io/v1
@@ -165,7 +168,7 @@ spec:
   - host: immunoodle.local
     http:
       paths:
-        - pathType: Prefix
+      - pathType: Prefix
         path: "/"
         backend:
           service:
