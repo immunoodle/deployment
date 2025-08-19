@@ -44,7 +44,7 @@ sudo kubectl get nodes
 #### Install cert-manager
 
 ```
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.16.2/cert-manager.yaml
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.18.2/cert-manager.yaml
 ```
 
 Import your own certificate if you have your own:
