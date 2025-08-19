@@ -1,6 +1,13 @@
 # TODO - Setup TLS
 ---
 apiVersion: v1
+kind: Secret
+metadata:
+  name: redis
+stringData:
+  REDIS_AUTH: IMMUNOODLE_REDIS_AUTH
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: redis
@@ -56,7 +63,7 @@ spec:
             - name: REDIS_AUTH
               valueFrom:
                 secretKeyRef:
-                  name: immunoodle
+                  name: redis
                   key: REDIS_AUTH
           ports:
             - containerPort: 6379
