@@ -38,8 +38,6 @@ spec:
       labels:
         app: redis
     spec:
-      imagePullSecrets:
-        - name: regcred
       containers:
         - image: redis:8
           name: redis
