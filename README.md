@@ -214,7 +214,7 @@ kubectl apply -f k8s-manifests/traefik.yml
 Dex is used for auth for the Immunoodle Components
 
 ```
-kubectl apply -f k8s-manifests/dex.yml
+kubectl -n immunoodle apply -f k8s-manifests/dex.yml
 ```
 
 ### Whoami
