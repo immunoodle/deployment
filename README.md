@@ -57,7 +57,11 @@ Place your PEM encoded private key in a file named `tls.key`.
  kubectl create secret generic
  cert-official --from-file=tls.crt=tls.crt --from-file=tls.key=tls.key -n immunoodle
 ```
-Otherwise - create your own root CA
+Otherwise - create the immunoodle namespace and your own root CA:
+
+```bash
+kubectl create ns immunoodle
+```
 
 ```
 apiVersion: cert-manager.io/v1
