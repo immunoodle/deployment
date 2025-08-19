@@ -209,16 +209,23 @@ Traefik is a Ingress Controller that provides access to the various Immunoodle C
 kubectl apply -f k8s-manifests/traefik.yml
 ```
 
+### Dex
+
+Dex is used for auth for the Immunoodle Components
+
+```
+kubectl apply -f k8s-manifests/dex.yml
+```
+
 ### Whoami
 
 Whoami let's us test the components installed thus far
-
 
 ```
 kubectl apply -f k8s-manifests/whoami.yml
 ```
 
-Using the whoami application confirm the basic components such as traefik and cert-manager work thus far.
+*Using the whoami application confirm the basic components such as traefik and cert-manager work thus far.*
 
 ### PostgreSQL 
 
@@ -226,14 +233,6 @@ PostgresQL is used for backing database for Dex for Auth and for the various Imm
 
 ```
 kubectl apply -f k8s-manifests/postgresql.yml
-```
-
-### Dex
-
-Dex is used for auth for the Immunoodle Components
-
-```
-kubectl apply -f k8s-manifests/dex.yml
 ```
 
 ### Redis
