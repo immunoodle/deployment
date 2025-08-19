@@ -10,22 +10,45 @@ spec:
     requests:
       storage: 1G
 ---
-apiVersion: bitnami.com/v1alpha1
-kind: SealedSecret
+apiVersion: v1
+kind: Secret
 metadata:
-  annotations:
-    sealedsecrets.bitnami.com/cluster-wide: "true"
-  creationTimestamp: null
   name: dex
-spec:
-  encryptedData:
-    config.yml: secret_goes_here
-  template:
-    metadata:
-      annotations:
-        sealedsecrets.bitnami.com/cluster-wide: "true"
-      creationTimestamp: null
-      name: dex
+  labels:
+    app: dex
+stringData:
+  config.yml: |
+    issuer: https://IMMUNOODLE_HOSTNAME/dex
+    storage:
+      type: sqlite3
+      config:
+        file: /var/dex/dex.db
+    web:
+      http: 0.0.0.0:5556
+    grpc:
+      addr: 0.0.0.0:5557
+      reflection: true
+    staticClients:
+    - name: 'Immunoodle'
+      id: IMMUNOODLE_OAUTH_CLIENT_ID
+      secret: IMMUNOODLE_OAUTH_SECRET
+      redirectURIs:
+      - 'https://IMMUNOODLE_HOSTNAME/mlr/callback'
+      - 'https://IMMUNOODLE_HOSTNAME/whoami/oauth2/callback'
+    staticPasswords:
+    - email: "admin@example.com"
+      hash: "IMMUNOODLE_ADMIN_PASSWORD_HASH"
+      username: "admin"
+      userID: "08a8684b-db88-4b73-90a9-3cd1661f5466"
+    enablePasswordDB: true
+    oauth2:
+      passwordConnector: local
+      skipApprovalScreen: true
+    frontend:
+      dir: /var/dex/web
+      extra:
+        signup_url: "/dex/account/signup"
+        forgot_password_url: "/dex/account/forgot_password"
 ---
 apiVersion: v1
 kind: Service
@@ -83,14 +106,6 @@ spec:
       - image: dexidp/dex:v2.41.1-alpine
         imagePullPolicy: Always
         name: dex
-        # env:
-        # - name: PGDATA
-        #   value: /var/lib/dex/data
-        # - name: POSTGRES_PASSWORD
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: application
-        #       key: POSTGRES_PASSWORD
         ports:
         - containerPort: 5556
           name: dex
@@ -166,7 +181,7 @@ spec:
         name: dex-account
         env:
         - name: REDIRECT_URL_AFTER_SIGNUP
-          value: "https://immunoodle.local/whoami"
+          value: "https://IMMUNOODLE_HOSTNAME/whoami"
         - name: GRPC_ADDRESS
           value: "dex:5557"
         ports:
