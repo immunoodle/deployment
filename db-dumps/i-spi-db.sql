@@ -700,7 +700,10 @@ CREATE TABLE madi_results.xmap_header (
     rp1_target numeric(8,0),
     auth0_user text,
     workspace_id bigint,
-    plateid character varying(2024)
+    plateid character varying(2024),
+    plate character varying(15),
+    sample_dilution_factor numeric,
+    n_wells numeric
 );
 
 
@@ -1051,9 +1054,10 @@ CREATE TABLE madi_results.xmap_standard_fits (
     loq_method character varying,
     bkg_method character varying,
     is_log_mfi_axis boolean,
-    linear_center numeric,
     analyte character varying(40),
-    formula text
+    formula text,
+    x_inflection numeric,
+    y_inflection numeric
 );
 
 
