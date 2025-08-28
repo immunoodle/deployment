@@ -20,7 +20,7 @@ Start with Infrastructure below and then continue onto [Application](https://git
 
 [traefik](https://github.com/immunoodle/deployment#Traefik)
 
-[whoami](https://github.com/immunoodle/deployment#Whoami))
+[whoami](https://github.com/immunoodle/deployment#Whoami)
 
 ### k3s
 
