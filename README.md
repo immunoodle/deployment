@@ -20,7 +20,7 @@ Start with Infrastructure below and then continue onto [Application](https://git
 
 [traefik](https://github.com/immunoodle/deployment#Traefik)
 
-[whoami]((https://github.com/immunoodle/deployment#Whoami))
+[whoami](https://github.com/immunoodle/deployment#Whoami))
 
 ### k3s
 
@@ -225,7 +225,7 @@ Whoami let's us test the components installed thus far
 kubectl apply -f k8s-manifests/whoami.yml
 ```
 
-*Using the whoami application confirm the basic components such as traefik and cert-manager work thus far.*
+*Use the whoami application to confirm the basic components such as traefik and cert-manager work thus far.*
 
 ### PostgreSQL 
 
