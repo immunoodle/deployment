@@ -287,7 +287,11 @@ kubectl apply -f k8s-manifests/api.yml
 
 ### DataPortal
 
-Data Portal 
+Data Portal Database
+
+```
+kubectl -n immunoodle exec -it deploy/postgresql -- psql -U postgres postgres < db-dumps/dataportal.sql
+```
 
 ```
 kubectl apply -f k8s-manifests/data-portal.yml
@@ -301,7 +305,8 @@ I-SPI is an interactive R Shiny application for processing, analyzing, and visua
 Set-up the database for the application first. Find the name of the postgresql pod in the immunoodle namespace:
 
 ```
-kubectl exec -i <pod-name> -- psql -U <username> -d imunoodle < db-dumps/i-spi-db.sql
+kubectl -n immunoodle exec -it deploy/postgresql -- psql -U postgres -c "CREATE DATABASE immunoodle;"
+kubectl -n immunoodle exec -it deploy/postgresql -- psql -U postgres immunoodle < db-dumps/i-spi-db.sql
 ```
 
 ```
