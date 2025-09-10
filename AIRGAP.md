@@ -38,5 +38,5 @@ Transfer the tarballs to a USB drive.
 
 ### K3s
 
-In K3s, you can copy the tarballs to the `/var/lib/rancher/k3s/agent/images/` directory.  Within a few minutes, the images will be available for use.
+In K3s, `mkdir -p /var/lib/rancher/k3s/agent/images/` and then you can copy the tarballs to the `/var/lib/rancher/k3s/agent/images/` directory.  Within a few minutes, the images will be available for use.
 
