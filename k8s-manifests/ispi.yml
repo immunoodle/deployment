@@ -82,7 +82,7 @@ spec:
             - name: db
               value: "postgres"
             - name: db_host
-              value: "postgres.immunoodle.local"
+              value: "postgresql"
             - name: db_port
               value: "5432"
             - name: db_userid_x
