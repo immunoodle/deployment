@@ -1,4 +1,22 @@
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: immunoodle
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1G
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: worker
+stringData:
+  SQLALCHEMY_DATABASE_URL: postgresql://api_worker:IMMUNOODLE@postgresql.svc/postgres
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -23,18 +41,18 @@ spec:
       imagePullSecrets:
       - name: regcred
       containers:
-        - image: 
+        - image: ghcr.io/immunoodle/data-portal-ingest-worker:main
           name: worker
           env:
             - name: SQLALCHEMY_DATABASE_URL
               valueFrom:
                 secretKeyRef:
-                  name: immunoodle
+                  name: worker
                   key: SQLALCHEMY_DATABASE_URL
             - name: REDIS_AUTH
               valueFrom:
                 secretKeyRef:
-                  name: immunoodle
+                  name: redis
                   key: REDIS_AUTH
             - name: CELERY_BROKER_URL
               value: "redis://:$(REDIS_AUTH)@redis:6379/0"
