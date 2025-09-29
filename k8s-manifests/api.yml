@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: api
+  name: apikey
 stringData:
   API_KEY: IMMUNOODLE_API_KEY
 ---
@@ -41,7 +41,7 @@ spec:
         app: api
     spec:
       containers:
-        - image: ghcr.io/immunoodle/data-portal-ingest-api:sha256-bf4ec71b51a7099f837e70a59047048447135d23268e6d694a040a1a7f54fd1b
+        - image: ghcr.io/immunoodle/data-portal-ingest-api:main
           name: api
           env:
             - name: REDIS_AUTH
