@@ -1,4 +1,12 @@
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: data-portal
+stringData:
+  DEX_CLIENT_SECRET: IMMUNOODLE
+
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -52,36 +60,37 @@ spec:
         app: data-portal
     spec:
       containers:
-        - image: 
+        - image: ghcr.io/immunoodle/data-portal:sha-f18bb30
+          name: data-portal
           env:
             - name: db
               value: "postgres"
             - name: db_host
-              value: "postgresql.immunoodle.local"
+              value: "postgresql"
             - name: RETICULATE_PYTHON
               value: "/opt/miniconda/envs/project_py_env/bin/python"
             - name: db_port
               value: "5432"
             - name: db_userid_x
-              value: ???
+              value: postgres
             - name: db_pwd_x
               valueFrom:
                 secretKeyRef:
-                  name: immunoodle
-                  key: db_pwd_x
+                  name: postgresql
+                  key: POSTGRES_PASSWORD
             - name: DB_NAME
               value: "postgres"
             - name: DB_HOST
-              value: "postgresql.immunoodle.local"
+              value: "postgresql"
             - name: DB_PORT
               value: "5432"
             - name: DB_USER
-              value: ???
+              value: postgres
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: immunoodle
-                  key: db_pwd_x
+                  name: postgresql
+                  key: POSTGRES_PASSWORD
             - name: upload_template_path
               value: "/data/uploaded_templates"
             - name: upload_file_path
@@ -91,56 +100,45 @@ spec:
             - name: immunoodle_api_key
               valueFrom:
                 secretKeyRef:
-                  name: immunoodle
-                  key: immunoodle_api_key
-            - name: AUTH0_USE
-              value: ???
-            - name: AUTH0_USER
-              value: ???
-            - name: AUTH0_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: immunoodle
-                  key: AUTH0_KEY
-            - name: AUTH0_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: immunoodle
-                  key: AUTH0_SECRET
-            - name: AUTH0_REMOTE_URL
-              value: "https://iummunoodle.local/"
-            - name: immunoodle_toolset_url
-              value: ??
+                  name: apikey
+                  key: API_KEY
             - name: SHINY_LOG_LEVEL
               value: DEBUG
             - name: SHINY_LOG_STDERR
               value: "1"
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  name: immunoodle
-                  key: AWS_ACCESS_KEY_ID
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: immunoodle
-                  key: AWS_SECRET_ACCESS_KEY
+            #FIXME
+#            - name: AWS_ACCESS_KEY_ID
+#              valueFrom:
+#                secretKeyRef:
+#                  name: data-portal
+#                  key: AWS_ACCESS_KEY_ID
+            #FIXME
+#            - name: AWS_SECRET_ACCESS_KEY
+#              valueFrom:
+#                secretKeyRef:
+#                  name: data-portal
+#                  key: AWS_SECRET_ACCESS_KEY
+            #FIXME
             - name: AWS_DEFAULT_REGION
               value: ??
+            #FIXME
             - name: S3_BUCKET_NAME
               value: ??
             - name: DEX_ISSUER
               value: "https://immunoodle.local/dex"
             - name: DEX_CLIENT_ID
-              value: ???
+              value: NALazEJ5d6WStFpu
             - name: DEX_CLIENT_SECRET
-              value: ???
+              valueFrom:
+                secretKeyRef:
+                  name: data-portal
+                  key: DEX_CLIENT_SECRET
             - name: APP_REDIRECT_URI
-              value: "https://immunoodle.local/"
+              value: "https://immunoodle.local/data-portal/"
             - name: HOSTNAME
-              value: "https://immunoodle.local/"
+              value: "https://immunoodle.local/data-portal/"
             - name: DEX_LOGOUT_ENDPOINT
-              value: "https://immunoodle.local/"
+              value: "https://immunoodle.local/data-portal"
           ports:
           - containerPort: 3838
             name: shiny
