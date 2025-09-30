@@ -35,6 +35,7 @@ stringData:
       redirectURIs:
       - 'https://IMMUNOODLE_HOSTNAME/mlr/callback'
       - 'https://IMMUNOODLE_HOSTNAME/whoami/oauth2/callback'
+      - 'https://immunoodle.local/data-portal/'
     staticPasswords:
     - email: "admin@example.com"
       hash: "IMMUNOODLE_ADMIN_PASSWORD_HASH"
