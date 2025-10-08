@@ -4,6 +4,7 @@ kind: Secret
 metadata:
   name: data-portal
 stringData:
+  db_pwd_x: IMMUNOODLE
   DEX_CLIENT_SECRET: IMMUNOODLE
 
 ---
@@ -54,13 +55,24 @@ spec:
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: 0
+
   template:
     metadata:
       labels:
         app: data-portal
     spec:
+      volumes:
+      - name: crt-mount
+        secret:
+          secretName: root-ca-secret
+          items:
+          - key: ca.crt
+            path: ca.crt
       containers:
-        - image: ghcr.io/immunoodle/data-portal:sha-f18bb30
+        - image: ghcr.io/immunoodle/data-portal:sha-53e4f85
+          volumeMounts:
+          - name: crt-mount
+            mountPath: "/etc/secrets"
           name: data-portal
           env:
             - name: db
@@ -139,6 +151,9 @@ spec:
               value: "https://immunoodle.local/data-portal/"
             - name: DEX_LOGOUT_ENDPOINT
               value: "https://immunoodle.local/data-portal"
+            - name: DEX_CA_CERT_PATH
+              value: /etc/secrets/ca.crt
           ports:
           - containerPort: 3838
             name: shiny
+[root@immunoodle ~]#
