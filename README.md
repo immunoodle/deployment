@@ -182,10 +182,19 @@ kubectl -n immunoodle apply -f k8s-manifests/traefik.yml
 
 ### Dex
 
-Dex is used for auth for the Immunoodle Components
+Dex is used for auth for the Immunoodle Components. First we will spin up the deployment, spin it down to copy template files into place
 
 ```
 kubectl -n immunoodle apply -f k8s-manifests/dex.yml
+kubectl -n immunoodle scale deploy dex --replicas=0
+# This will get you into a shell with access to the pvc
+kubectl -n immunoodle run -it --rm debug --image=busybox --restart=Never   --overrides='{"spec":{"containers":[{"name":"debug","image":"busybox","stdin":true,"tty":true,"volumeMounts":[{"name":"storage","mountPath":"/var/dex"}]}],"volumes":[{"name":"storage","persistentVolumeClaim":{"claimName":"dex"}}]}}'
+# run this in another terminal window/tab
+kubectl -n immunoodle cp web.zip debug:/var/dex/
+# in the other terminal window/tab
+cd /var/dex && unzip /var/dex/web.zip && exit
+# scale it back up
+kubectl -n immunoodle scale deploy dex --replicas=1
 ```
 
 ### Whoami
