@@ -6,7 +6,7 @@ If you don't have a container orchestration platform, you can use [k3s](https://
 
 Deploy the resources in the order listed in the Table Of Contents, which is broken into two parts - Infrastructure and Application.
 
-**Replace IMMUNOODLE_HOSTNAME and IMMUNOODLE_PASSWORD in manifests***
+**Replace IMMUNOODLE_HOSTNAME and IMMUNOODLE_PASSWORD in manifests**
 
 Start with Infrastructure below and then continue onto [Application](https://github.com/immunoodle/deployment#Application)
 
