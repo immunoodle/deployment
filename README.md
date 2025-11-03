@@ -28,7 +28,7 @@ Requirements:
 
 https://docs.k3s.io/installation/requirements
 
-Note: firewall requirements
+Note: firewall requirements if running one
 
 ```
 firewall-cmd --permanent --add-port=6443/tcp
@@ -37,8 +37,10 @@ firewall-cmd --permanent --zone=trusted --add-source=10.43.0.0/16
 firewall-cmd --reload
 ```
 
+Pass custom arguments to k3s install (We use a custom traefik in the immunoodle namespace and this has been tested on k3s v 1.3.35)
+
 ```
-curl -sfL https://get.k3s.io | sh -
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.33.5+k3s1 sh -s - --disable=traefik
 sudo kubectl get nodes
 ```
 
@@ -51,7 +53,7 @@ kubectl create ns immunoodle
 #### Install cert-manager
 
 ```
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.18.2/cert-manager.yaml
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.1/cert-manager.yaml
 ```
 
 Import your own certificate if you have your own:
@@ -67,6 +69,7 @@ Place your PEM encoded private key in a file named `tls.key`.
 Otherwise - create your own root CA:
 
 ```
+cat <<EOF | kubectl apply -f -
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
@@ -101,10 +104,7 @@ metadata:
 spec:
   ca:
     secretName: root-ca-secret
-```
-
-```
-kubectl -n cert-manager create -f ca.yaml
+EOF
 ```
 
 Confirm CA is ready
@@ -116,6 +116,7 @@ kubectl describe ClusterIssuer -n cert-manager
 Create intermediate CA
 
 ```
+cat <<EOF | kubectl apply -f -
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -143,17 +144,15 @@ metadata:
 spec:
   ca:
     secretName: intermediate-ca1-secret
-```
-
-```
-kubectl -n cert-manager create -f intermediate-ca.yaml
+EOF
 ```
 
 #### Create Ingress that will generate the certificate 
 
-Create cert to use with ingress (replace immunoodle.local in common-name and hosts with the hostname you want to present your cert on). If you are bringing your own cert, replace SecretName at the bottom with cert-offifical
+Create cert to use with ingress (replace immunoodle.local in common-name and hosts with the hostname you want to present your cert on). If you are bringing your own cert, replace SecretName at the bottom 
 
 ```
+cat <<EOF | kubectl apply -f -
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -179,10 +178,10 @@ spec:
   - hosts:
     - immunoodle.local
     secretName: cert-secret
+EOF
 ```
 
-```
-kubectl create -f ingress.yaml
+ectl create -f ingress.yaml
 ```
 
 #### Export self-signed Root CA for import to browsers
