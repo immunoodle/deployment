@@ -147,38 +147,12 @@ spec:
 EOF
 ```
 
-#### Create Ingress that will generate the certificate 
-
-Create cert to use with ingress (replace immunoodle.local in common-name and hosts with the hostname you want to present your cert on). If you are bringing your own cert, replace SecretName at the bottom 
+Copy root-ca-secret to immunoodle namespace
 
 ```
-cat <<EOF | kubectl apply -f -
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: ingress
-  namespace: immunoodle
-  annotations:
-    cert-manager.io/cluster-issuer: intermediate-ca1-issuer
-    cert-manager.io/common-name: "immunoodle.local"
-spec:
-  ingressClassName: traefik
-  rules:
-  - host: immunoodle.local
-    http:
-      paths:
-      - pathType: Prefix
-        path: "/"
-        backend:
-          service:
-            name: service
-            port:
-              number: 80
-  tls:
-  - hosts:
-    - immunoodle.local
-    secretName: cert-secret
-EOF
+ kubectl get secret root-ca-secret --namespace=cert-manager -o yaml \
+  | sed 's/namespace: cert-manager/namespace: immunoodle/' \
+  | kubectl create -f -
 ```
 
 #### Export self-signed Root CA for import to browsers
@@ -209,7 +183,7 @@ Copy root-ca-secret to immunoodle namespace
 Traefik is a Ingress Controller that provides access to the various Immunoodle Components
 
 ```
-kubectl apply -f k8s-manifests/traefik.yml
+kubectl -n immunoodle apply -f k8s-manifests/traefik.yml
 ```
 
 ### Dex
