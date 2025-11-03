@@ -181,10 +181,8 @@ spec:
 EOF
 ```
 
-ectl create -f ingress.yaml
-```
-
 #### Export self-signed Root CA for import to browsers
+
 ```
 kubectl -n cert-manager get secret root-ca-secret -o jsonpath='{.data.tls\.crt}' | base64 -d > cert.crt
 ```
