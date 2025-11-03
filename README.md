@@ -6,6 +6,8 @@ If you don't have a container orchestration platform, you can use [k3s](https://
 
 Deploy the resources in the order listed in the Table Of Contents, which is broken into two parts - Infrastructure and Application.
 
+**Replace IMMUNOODLE_HOSTNAME and IMMUNOODLE_PASSWORD in manifests***
+
 Start with Infrastructure below and then continue onto [Application](https://github.com/immunoodle/deployment#Application)
 
 ## Table of Contents - Infrastructure
@@ -190,7 +192,7 @@ kubectl -n immunoodle scale deploy dex --replicas=0
 # This will get you into a shell with access to the pvc
 kubectl -n immunoodle run -it --rm debug --image=busybox --restart=Never   --overrides='{"spec":{"containers":[{"name":"debug","image":"busybox","stdin":true,"tty":true,"volumeMounts":[{"name":"storage","mountPath":"/var/dex"}]}],"volumes":[{"name":"storage","persistentVolumeClaim":{"claimName":"dex"}}]}}'
 # run this in another terminal window/tab
-kubectl -n immunoodle cp web.zip debug:/var/dex/
+kubectl -n immunoodle cp templates/web.zip debug:/var/dex/
 # in the other terminal window/tab
 cd /var/dex && unzip /var/dex/web.zip && exit
 # scale it back up
