@@ -172,12 +172,6 @@ openssl pkcs12 -export -out immunoodle.pfx -inkey cert.key -in cert.crt
 
 ```
 
-Copy root-ca-secret to immunoodle namespace
-
-```
- kubectl get secret root-ca-secret --namespace=cert-manager -o yaml   | sed "s/namespace: cert-manager/namespace: immunoodle/"   | kubectl apply -f
-```
-
 ### Traefik
 
 Traefik is a Ingress Controller that provides access to the various Immunoodle Components
