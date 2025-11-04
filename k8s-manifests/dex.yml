@@ -35,7 +35,7 @@ stringData:
       redirectURIs:
       - 'https://IMMUNOODLE_HOSTNAME/mlr/callback'
       - 'https://IMMUNOODLE_HOSTNAME/whoami/oauth2/callback'
-      - 'https://immunoodle.local/data-portal/'
+      - 'https://IMMUNOODLE_HOSTNAME/data-portal/'
     staticPasswords:
     - email: "admin@example.com"
       hash: "IMMUNOODLE_ADMIN_PASSWORD_HASH"
@@ -70,18 +70,27 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
- name: dex
+   name: dex
+   annotations:
+     cert-manager.io/cluster-issuer: intermediate-ca1-issuer
+     cert-manager.io/common-name: "IMMUNOODLE_HOSTNAME"
+     kubernetes.io/ingress.class: traefik
+     traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
- rules:
- - http:
-     paths:
-     - path: /dex
-       pathType: Prefix
-       backend:
-         service:
-           name: dex
-           port:
-             number: 5556
+  rules:
+  - http:
+      paths:
+      - path: /dex
+        pathType: Prefix
+        backend:
+          service:
+            name: dex
+            port:
+              number: 5556
+  tls:
+  - hosts:
+    - IMMUNOODLE_HOSTNAME
+    secretName: cert-secret
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -104,7 +113,7 @@ spec:
       imagePullSecrets:
       - name: regcred
       containers:
-      - image: dexidp/dex:v2.41.1-alpine
+      - image: dexidp/dex:v2.44.0-alpine
         imagePullPolicy: Always
         name: dex
         ports:
