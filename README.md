@@ -204,7 +204,7 @@ kubectl -n immunoodle scale deploy dex --replicas=1
 Whoami let's us test the components installed thus far
 
 ```
-kubectl apply -f k8s-manifests/whoami.yml
+kubectl -n immunoodle apply -f k8s-manifests/whoami.yml
 ```
 
 *Use the whoami application to confirm the basic components such as traefik and cert-manager work thus far.*
@@ -214,7 +214,7 @@ kubectl apply -f k8s-manifests/whoami.yml
 PostgresQL is used for backing database for Dex for Auth and for the various Immunoodle Components.
 
 ```
-kubectl apply -f k8s-manifests/postgresql.yml
+kubectl -n immunoodle apply -f k8s-manifests/postgresql.yml
 ```
 
 ### Redis
@@ -222,7 +222,7 @@ kubectl apply -f k8s-manifests/postgresql.yml
 Redis is the key-value database for Immunoodle
 
 ```
-kubectl apply -f k8s-manifests/redis.yml
+kubectl -n immunoodle apply -f k8s-manifests/redis.yml
 ```
 
 
@@ -248,7 +248,7 @@ Once the Immunoodle Infrastructure has been deployed and tested, move onto Imuno
 Signup creates and manages local users for the Immunoodle application stack as integrates with your choice of Oauth2 provider.
 
 ```
-kubectl apply -f k8s-manifests/signup.yml
+kubectl -n immunoodle apply -f k8s-manifests/signup.yml
 ```
 
 ### Worker
@@ -256,7 +256,7 @@ kubectl apply -f k8s-manifests/signup.yml
 Worker handles task management for data processing in the Immunoodle application stack
 
 ```
-kubectl apply -f k8s-manifests/worker.yml
+kubectl -n immunoodle apply -f k8s-manifests/worker.yml
 ```
 
 ### API
@@ -264,7 +264,7 @@ kubectl apply -f k8s-manifests/worker.yml
 API provides API endpoints for data processing in the Immunoodle application stack
 
 ```
-kubectl apply -f k8s-manifests/api.yml
+kubectl -n immunoodle apply -f k8s-manifests/api.yml
 ```
 
 ### DataPortal
@@ -276,7 +276,7 @@ kubectl -n immunoodle exec -it deploy/postgresql -- psql -U postgres postgres < 
 ```
 
 ```
-kubectl apply -f k8s-manifests/data-portal.yml
+kubectl -n immunoodle apply -f k8s-manifests/data-portal.yml
 ```
 
 
@@ -292,7 +292,7 @@ kubectl -n immunoodle exec -it deploy/postgresql -- psql -U postgres immunoodle 
 ```
 
 ```
-kubectl apply -f k8s-manifests/ispi.yml
+kubectl -n immunoodle apply -f k8s-manifests/ispi.yml
 ```
 
 
