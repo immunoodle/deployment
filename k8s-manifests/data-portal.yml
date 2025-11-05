@@ -4,8 +4,8 @@ kind: Secret
 metadata:
   name: data-portal
 stringData:
-  db_pwd_x: IMMUNOODLE
-  DEX_CLIENT_SECRET: IMMUNOODLE
+  db_pwd_x: IMMUNOODLE_DB_PASSWORD
+  DEX_CLIENT_SECRET: IMMUNOODLE_CLIENT_SECRET
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -137,7 +137,7 @@ spec:
             - name: S3_BUCKET_NAME
               value: ??
             - name: DEX_ISSUER
-              value: "https://immunoodle.local/dex"
+              value: "https://IMMUNOODLE_HOSTNAME/dex"
             - name: DEX_CLIENT_ID
               value: NALazEJ5d6WStFpu
             - name: DEX_CLIENT_SECRET
@@ -146,14 +146,13 @@ spec:
                   name: data-portal
                   key: DEX_CLIENT_SECRET
             - name: APP_REDIRECT_URI
-              value: "https://immunoodle.local/data-portal/"
+              value: "https://IMMUNOODLE_HOSTNAME/data-portal/"
             - name: HOSTNAME
-              value: "https://immunoodle.local/data-portal/"
+              value: "https://IMMUNOODLE_HOSTNAME/data-portal/"
             - name: DEX_LOGOUT_ENDPOINT
-              value: "https://immunoodle.local/data-portal"
+              value: "https://IMMUNOODLE_HOSTNAME/data-portal"
             - name: DEX_CA_CERT_PATH
               value: /etc/secrets/ca.crt
           ports:
           - containerPort: 3838
             name: shiny
-[root@immunoodle ~]#
