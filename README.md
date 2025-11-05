@@ -225,6 +225,13 @@ Redis is the key-value database for Immunoodle
 kubectl -n immunoodle apply -f k8s-manifests/redis.yml
 ```
 
+### Minio
+
+Minio provides storage for Immunoodle
+
+```
+kubectl -n immunoodle apply -f k8s-manifests/minio.yml
+```
 
 
 Once the Immunoodle Infrastructure has been deployed and tested, move onto Imunoodle application deployment.
