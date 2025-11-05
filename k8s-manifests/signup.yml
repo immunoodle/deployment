@@ -6,7 +6,6 @@ metadata:
   labels:
     app: signup
   name: signup
-  namespace: immunoodle
 spec:
   ports:
   - name: signup
@@ -23,7 +22,6 @@ metadata:
   labels:
     app: signup
   name: signup
-  namespace: immunoodle
 spec:
   replicas: 1
   selector:
@@ -39,7 +37,7 @@ spec:
       containers:
       - env:
         - name: REDIRECT_URL_AFTER_SIGNUP
-          value: https://immunoodle.local/whoami
+          value: https://IMMUNOODLE_HOST/whoami
         - name: GRPC_ADDRESS
           value: dex:5557
         image: ghcr.io/immunoodle/signup:sha256-041117b0b27b5653a481ef70a56327c52bb4c20b45f1cc35fc823fa57335d0a8
