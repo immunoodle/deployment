@@ -13,7 +13,11 @@ kind: Ingress
 metadata:
   name: data-portal
   annotations:
-    traefik.ingress.kubernetes.io/router.middlewares: data-portal-stripprefix@file
+    cert-manager.io/cluster-issuer: intermediate-ca1-issuer
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: data-portal-stripprefix@file,addslashbyredirect@file
 spec:
   rules:
   - http:
