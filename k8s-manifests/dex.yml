@@ -30,20 +30,20 @@ stringData:
       reflection: true
     staticClients:
     - name: 'Immunoodle'
-      id: IMMUNOODLE_UNIQUE_OAUTH_CLIENT_ID
-      secret: IMMUNOODLE_OAUTH_SECRET
+      id: IMMUNOODLE_WHOAMI_OAUTH_CLIENT_ID
+      secret: IMMUNOODLE_WHOAMI_OAUTH_SECRET
       redirectURIs:
       - 'https://IMMUNOODLE_HOSTNAME/mlr/callback'
       - 'https://IMMUNOODLE_HOSTNAME/whoami/oauth2/callback'
     - name: 'data-portal'
-      id: IMMUNOODLE_UNIQUE_OAUTH_CLIENT_ID2
-      secret: IMMUNOODLE_OAUTH_SECRET2
+      id: IMMUNOODLE_DATA_PORTAL_OAUTH_CLIENT_ID
+      secret: IMMUNOODLE_DATA_PORTAL_OAUTH_SECRET
       redirectURIs:
       - 'https://immunoodle.local/data-portal/'
       - 'https://immunoodle.local/data-portal/callback'
     - name: 'i-spi'
-      id: IMMUNOODLE_UNIQUE_OAUTH_CLIENT_ID3
-      secret: IMMUNOODLE_OAUTH_SECRET3
+      id: IMMUNOODLE_I_SPI_OAUTH_CLIENT_ID
+      secret: IMMUNOODLE_I_SPI_OAUTH_SECRET
       redirectURIs:
       - 'https://immunoodle.local/i-spi/'
       - 'https://immunoodle.local/i-spi/callback'
