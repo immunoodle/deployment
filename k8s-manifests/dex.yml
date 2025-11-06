@@ -39,14 +39,14 @@ stringData:
       id: IMMUNOODLE_DATA_PORTAL_OAUTH_CLIENT_ID
       secret: IMMUNOODLE_DATA_PORTAL_OAUTH_SECRET
       redirectURIs:
-      - 'https://immunoodle.local/data-portal/'
-      - 'https://immunoodle.local/data-portal/callback'
+      - 'https://IMMUNOODLE_HOSTNAME/data-portal/'
+      - 'https://IMMUNOODLE_HOSTNAME/data-portal/callback'
     - name: 'i-spi'
       id: IMMUNOODLE_I_SPI_OAUTH_CLIENT_ID
       secret: IMMUNOODLE_I_SPI_OAUTH_SECRET
       redirectURIs:
-      - 'https://immunoodle.local/i-spi/'
-      - 'https://immunoodle.local/i-spi/callback'
+      - 'https://IMMUNOODLE_HOSTNAME/i-spi/'
+      - 'https://IMMUNOODLE_HOSTNAME/i-spi/callback'
     staticPasswords:
     - email: "admin@example.com"
       hash: "IMMUNOODLE_ADMIN_PASSWORD_HASH"
@@ -166,6 +166,10 @@ metadata:
   name: dex-account
   annotations:
     traefik.ingress.kubernetes.io/router.middlewares: dex-account-stripprefix@file
+    cert-manager.io/cluster-issuer: intermediate-ca1-issuer
+    cert-manager.io/common-name: "IMMUNOODLE_HOSTNAME"
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
  rules:
  - http:
@@ -177,6 +181,10 @@ spec:
            name: dex-account
            port:
              number: 8080
+  tls:
+  - hosts:
+    - IMMUNOODLE_HOSTNAME
+    secretName: cert-secret
 ---
 apiVersion: apps/v1
 kind: Deployment
