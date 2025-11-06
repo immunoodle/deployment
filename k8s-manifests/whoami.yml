@@ -118,6 +118,9 @@ spec:
           value: "login"
         - name: OAUTH2_PROXY_SCOPE
           value: "openid profile email"
+        # IF USING A SELF SIGNED CERT
+        - name: OAUTH2_PROXY_SSL_INSECURE_SKIP_VERIFY
+          value: "true"
         ports:
         - containerPort: 8080
           name: oauth2-proxy
