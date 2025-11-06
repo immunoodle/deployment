@@ -5,7 +5,7 @@ metadata:
   name: data-portal
 stringData:
   db_pwd_x: IMMUNOODLE_DB_PASSWORD
-  DEX_CLIENT_SECRET: IMMUNOODLE_CLIENT_SECRET
+  DEX_CLIENT_SECRET: IMMUNOODLE_DATA_PORTAL_OAUTH_SECRET
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -143,16 +143,16 @@ spec:
             - name: DEX_ISSUER
               value: "https://IMMUNOODLE_HOSTNAME/dex"
             - name: DEX_CLIENT_ID
-              value: NALazEJ5d6WStFpu
+              value: IMMUNOODLE_DATA_PORTAL_OAUTH_CLIENT_ID
             - name: DEX_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: data-portal
-                  key: DEX_CLIENT_SECRET
+                  key: IMMUNOODLE_DATA_PORTAL_OAUTH_SECRET
             - name: APP_REDIRECT_URI
               value: "https://IMMUNOODLE_HOSTNAME/data-portal/"
             - name: HOSTNAME
-              value: "https://IMMUNOODLE_HOSTNAME/data-portal/"
+              value: "https://IMMUNOODLE_HOSTNAME"
             - name: DEX_LOGOUT_ENDPOINT
               value: "https://IMMUNOODLE_HOSTNAME/data-portal"
             - name: DEX_CA_CERT_PATH
