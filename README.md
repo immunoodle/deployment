@@ -187,6 +187,7 @@ kubectl -n immunoodle apply -f k8s-manifests/traefik.yml
 Dex is used for auth for the Immunoodle Components. First we will spin up the deployment, spin it down to copy template files into place
 
 ```
+Create a unique id for each static client in k8s-manifests/dex.yml
 kubectl -n immunoodle apply -f k8s-manifests/dex.yml
 kubectl -n immunoodle scale deploy dex --replicas=0
 # This will get you into a shell with access to the pvc
