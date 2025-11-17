@@ -24,8 +24,8 @@ kind: Secret
 metadata:
   name: whoami
 stringData:
-  OAUTH2_PROXY_CLIENT_ID: IMMUNOODLE_WHOAMI_OAUTH_CLIENT_ID
-  OAUTH2_PROXY_CLIENT_SECRET: IMMUNOODLE_WHOAMI_OAUTH_SECRET
+  OAUTH2_PROXY_CLIENT_ID: IMMUNOODLE_OAUTH_CLIENT_ID
+  OAUTH2_PROXY_CLIENT_SECRET: IMMUNOODLE_OAUTH_SECRET
   OAUTH2_PROXY_COOKIE_SECRET: IMMUNOODLE_OAUTH_COOKIE_SECRET
 ---
 apiVersion: networking.k8s.io/v1
@@ -77,16 +77,16 @@ spec:
           value: 'oidc'
         - name: OAUTH2_PROXY_PROVIDER_DISPLAY_NAME
           value: 'Authentication Server'
-        - name: IMMUNOODLE_WHOAMI_OAUTH_SECRET
+        - name: OAUTH2_PROXY_CLIENT_ID
           valueFrom:
             secretKeyRef:
               name: whoami 
-              key: IMMUNOODLE_WHOAMI_OAUTH_SECRET
-        - name: IMMUNOODLE_WHOAMI_OAUTH_SECRET
+              key: OAUTH2_PROXY_CLIENT_ID
+        - name: OAUTH2_PROXY_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
               name: whoami
-              key: IMMUNOODLE_WHOAMI_OAUTH_SECRET
+              key: OAUTH2_PROXY_CLIENT_SECRET
         - name: OAUTH2_PROXY_EMAIL_DOMAINS
           value: '*'
         - name: OAUTH2_PROXY_PROXY_PREFIX

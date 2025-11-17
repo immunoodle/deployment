@@ -23,7 +23,7 @@ Start with Infrastructure below and then continue onto [Application](https://git
 
 [whoami](https://github.com/immunoodle/deployment#Whoami)
 
-### Clone git repo
+### Setup
 
 On the system where you'll be installing immunoodle, clone the deployment repo:
 
@@ -34,6 +34,8 @@ cd deployment
 # Replace PUT_YOUR_HOSTNAME_HERE with your extenal facing hostname
 sed -i "s/IMMUNOODLE_HOSTNAME/PUT_YOUR_HOSTNAME_HERE/g" k8s-manifests/*
 # sed -i "s/IMMUNOODLE_PASSWORD/PUT_YOUR_HOSTNAME_HERE/g" k8s-manifests/*
+sed -i "s/IMMUNOODLE_OAUTH_CLIENT_ID/PUT_YOUR_HOSTNAME_HERE/g" k8s-manifests/*
+sed -i "s/IMMUNOODLE_OAUTH_SECRET/PUT_YOUR_HOSTNAME_HERE/g" k8s-manifests/*
 ```
 
 ### k3s
