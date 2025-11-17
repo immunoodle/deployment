@@ -34,6 +34,8 @@ cd deployment
 # Replace PUT_YOUR_HOSTNAME_HERE with your extenal facing hostname
 sed -i "s/IMMUNOODLE_HOSTNAME/PUT_YOUR_HOSTNAME_HERE/g" k8s-manifests/*
 sed -i "s/IMMUNOODLE_IP_ADDRESS/PUT_YOUR_IP_ADDRESS_HERE/g" k8s-manifests/*
+sed -i "s/IMMUNOODLE_POSTGRES_PASSWORD/PUT_YOUR_POSTGRES_PASSWORD_HERE/g" k8s-manifests/*
+sed -i "s/IMMUNOODLE_REDIS_AUTH/PUT_YOUR_REDIS_PASSWORD_HERE/g" k8s-manifests/*
 IMMUNOODLE_OAUTH_CLIENT_ID=$(openssl rand -hex 32)
 IMMUNOODLE_OAUTH_SECRET=$(openssl rand -hex 32)
 IMMUNOODLE_OAUTH_COOKIE_SECRET=$(openssl rand -hex 16)
@@ -233,7 +235,7 @@ sudo kubectl -n immunoodle apply -f k8s-manifests/minio.yml
 
 Once the Immunoodle Infrastructure has been deployed and tested, move onto Imunoodle application deployment.
 
-## Application 
+## Application
 
 ## Table of Contents - Immunodle Application
 

@@ -46,13 +46,8 @@ data:
     sed -Ei "s/^#shared_preload_libraries = ''/shared_preload_libraries = 'pg_stat_statements,pg_buffercache'/" $PGDATA/postgresql.conf
     # Only use the following parameter if the result of `pg_test_timing` is very fast
     sed -Ei "s/^#track_io_timing = off/track_io_timing = on/" $PGDATA/postgresql.conf
-    # Fix locals issues
-    #sed -Ei "s/^(lc_messages.*)/#\1/" $PGDATA/postgresql.conf
-    #sed -Ei "s/^(lc_time.*)/#\1/" $PGDATA/postgresql.conf
-    #sed -Ei "s/^(lc_numeric.*)/#\1/" $PGDATA/postgresql.conf
-    #sed -Ei "s/^(lc_monetary.*)/#\1/" $PGDATA/postgresql.conf
 
-    openssl req -new -newkey rsa:4096 -nodes -out $PGDATA/server.csr -keyout $PGDATA/server.key -subj "CN=postgres.immunoodle.local"
+    openssl req -new -newkey rsa:4096 -nodes -out $PGDATA/server.csr -keyout $PGDATA/server.key -subj "/CN=postgres.immunoodle.local"
     openssl x509 -in $PGDATA/server.csr -out $PGDATA/server.crt -req -signkey $PGDATA/server.key -days 3650
     chmod 600 $PGDATA/server.key
     chown postgres:postgres $PGDATA/server.key
