@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns-custom
+  namespace: kube-system
+data:
+  default.server: |
+    IMMUNOODLE_HOSTNAME {
+        hosts {
+              IMMUNOODLE_IP_ADDRESS IMMUNOODLE_HOSTNAME
+              fallthrough
+        }
+    }
