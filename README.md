@@ -34,8 +34,10 @@ cd deployment
 # Replace PUT_YOUR_HOSTNAME_HERE with your extenal facing hostname
 sed -i "s/IMMUNOODLE_HOSTNAME/PUT_YOUR_HOSTNAME_HERE/g" k8s-manifests/*
 # sed -i "s/IMMUNOODLE_PASSWORD/PUT_YOUR_HOSTNAME_HERE/g" k8s-manifests/*
-sed -i "s/IMMUNOODLE_OAUTH_CLIENT_ID/PUT_YOUR_HOSTNAME_HERE/g" k8s-manifests/*
-sed -i "s/IMMUNOODLE_OAUTH_SECRET/PUT_YOUR_HOSTNAME_HERE/g" k8s-manifests/*
+IMMUNOODLE_OAUTH_CLIENT_ID=$(openssl rand -hex 32)
+IMMUNOODLE_OAUTH_SECRET=$(openssl rand -hex 32)
+sed -i "s/IMMUNOODLE_OAUTH_CLIENT_ID/$IMMUNOODLE_OAUTH_CLIENT_ID/g" k8s-manifests/*
+sed -i "s/IMMUNOODLE_OAUTH_SECRET/$IMMUNOODLE_OAUTH_SECRET/g" k8s-manifests/*
 ```
 
 ### k3s

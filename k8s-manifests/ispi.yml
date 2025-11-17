@@ -5,7 +5,6 @@ metadata:
   name: ispi
 stringData:
   DEX_CLIENT_SECRET: IMMUNOODLE_OAUTH_SECRET
-
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -106,7 +105,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: data-portal
-                  key: IMMUNOODLE_OAUTH_SECRET
+                  key: DEX_CLIENT_SECRET
             - name: APP_REDIRECT_URI
               value: https://IMMUNOODLE_HOSTNAME/i-spi
           ports:
