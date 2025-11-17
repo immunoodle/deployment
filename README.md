@@ -33,11 +33,13 @@ cd deployment
 
 # Replace PUT_YOUR_HOSTNAME_HERE with your extenal facing hostname
 sed -i "s/IMMUNOODLE_HOSTNAME/PUT_YOUR_HOSTNAME_HERE/g" k8s-manifests/*
-# sed -i "s/IMMUNOODLE_PASSWORD/PUT_YOUR_HOSTNAME_HERE/g" k8s-manifests/*
+sed -i "s/IMMUNOODLE_IP_ADDRESS/PUT_YOUR_IP_ADDRESS_HERE/g" k8s-manifests/*
 IMMUNOODLE_OAUTH_CLIENT_ID=$(openssl rand -hex 32)
 IMMUNOODLE_OAUTH_SECRET=$(openssl rand -hex 32)
+IMMUNOODLE_OAUTH_COOKIE_SECRET=$(openssl rand -hex 16)
 sed -i "s/IMMUNOODLE_OAUTH_CLIENT_ID/$IMMUNOODLE_OAUTH_CLIENT_ID/g" k8s-manifests/*
 sed -i "s/IMMUNOODLE_OAUTH_SECRET/$IMMUNOODLE_OAUTH_SECRET/g" k8s-manifests/*
+sed -i "s/IMMUNOODLE_OAUTH_COOKIE_SECRET/$IMMUNOODLE_OAUTH_COOKIE_SECRET/g" k8s-manifests/*
 ```
 
 ### k3s
@@ -52,6 +54,13 @@ Pass custom arguments to k3s install (We use a custom traefik in the immunoodle 
 curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.33.5+k3s1 sh -s - --disable=traefik
 sudo ln -s /usr/local/bin/kubectl /bin/kubectl
 sudo kubectl get node -o wide
+```
+
+#### CoreDNS
+
+```shell
+sudo kubectl apply -f k8s-manifests/coredns.yml
+sudo kubectl -n kube-system rollout restart deploy coredns
 ```
 
 #### Create immunoodle namespace
@@ -174,8 +183,8 @@ sudo kubectl -n immunoodle apply -f k8s-manifests/traefik.yml
 Dex is used for auth for the Immunoodle Components. First we will spin up the deployment, spin it down to copy template files into place
 
 ```shell
-Create a unique id for each static client in k8s-manifests/dex.yml
 sudo kubectl -n immunoodle apply -f k8s-manifests/dex.yml
+# TODO: Improve this process
 sudo kubectl -n immunoodle scale deploy dex --replicas=0
 # This will get you into a shell with access to the pvc
 sudo kubectl -n immunoodle run -it --rm debug --image=busybox --restart=Never   --overrides='{"spec":{"containers":[{"name":"debug","image":"busybox","stdin":true,"tty":true,"volumeMounts":[{"name":"storage","mountPath":"/var/dex"}]}],"volumes":[{"name":"storage","persistentVolumeClaim":{"claimName":"dex"}}]}}'
@@ -189,19 +198,19 @@ sudo kubectl -n immunoodle scale deploy dex --replicas=1
 
 ### Whoami
 
-Whoami let's us test the components installed thus far
+Whoami lets us test the components installed thus far
 
-```
+```shell
 sudo kubectl -n immunoodle apply -f k8s-manifests/whoami.yml
 ```
 
-*Use the whoami application to confirm the basic components such as traefik and cert-manager work thus far.*
+*Use the whoami application to confirm the basic components such as traefik and cert-manager work thus far. You'll need to use Signup to create the first user account*
 
-### PostgreSQL 
+### PostgreSQL
 
 PostgresQL is used for backing database for Dex for Auth and for the various Immunoodle Components.
 
-```
+```shell
 sudo kubectl -n immunoodle apply -f k8s-manifests/postgresql.yml
 ```
 
@@ -209,7 +218,7 @@ sudo kubectl -n immunoodle apply -f k8s-manifests/postgresql.yml
 
 Redis is the key-value database for Immunoodle
 
-```
+```shell
 sudo kubectl -n immunoodle apply -f k8s-manifests/redis.yml
 ```
 
@@ -217,7 +226,7 @@ sudo kubectl -n immunoodle apply -f k8s-manifests/redis.yml
 
 Minio provides storage for Immunoodle
 
-```
+```shell
 sudo kubectl -n immunoodle apply -f k8s-manifests/minio.yml
 ```
 

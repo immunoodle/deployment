@@ -196,7 +196,7 @@ spec:
         app: dex-account
     spec:
       containers:
-      - image: ghcr.io/immunoodle/signup:sha256-041117b0b27b5653a481ef70a56327c52bb4c20b45f1cc35fc823fa57335d0a8
+      - image: ghcr.io/immunoodle/signup:main
         imagePullPolicy: Always
         name: dex-account
         env:

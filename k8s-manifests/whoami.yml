@@ -32,6 +32,11 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: whoami
+  annotations:
+    cert-manager.io/cluster-issuer: intermediate-ca1-issuer
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
   rules:
   - http:
@@ -43,6 +48,10 @@ spec:
             name: whoami
             port:
               number: 8080
+  tls:
+  - hosts:
+    - IMMUNOODLE_HOSTNAME
+    secretName: cert-secret
 ---
 kind: Deployment
 apiVersion: apps/v1
