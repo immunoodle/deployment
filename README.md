@@ -6,7 +6,6 @@ If you don't have a container orchestration platform, you can use [k3s](https://
 
 Deploy the resources in the order listed in the Table Of Contents, which is broken into two parts - Infrastructure and Application.
 
-**Replace IMMUNOODLE_HOSTNAME and IMMUNOODLE_PASSWORD in manifests**
 
 Start with Infrastructure below and then continue onto [Application](https://github.com/immunoodle/deployment#Application)
 
@@ -24,54 +23,49 @@ Start with Infrastructure below and then continue onto [Application](https://git
 
 [whoami](https://github.com/immunoodle/deployment#Whoami)
 
+### Clone git repo
+
+On the system where you'll be installing immunoodle, clone the deployment repo:
+
+```shell
+git clone https://github.com/immunoodle/deployment.git
+cd deployment
+
+# Replace PUT_YOUR_HOSTNAME_HERE with your extenal facing hostname
+sed -i "s/IMMUNOODLE_HOSTNAME/PUT_YOUR_HOSTNAME_HERE/g" k8s-manifests/*
+# sed -i "s/IMMUNOODLE_PASSWORD/PUT_YOUR_HOSTNAME_HERE/g" k8s-manifests/*
+```
+
 ### k3s
 
 Requirements:
 
 https://docs.k3s.io/installation/requirements
 
-Note: firewall requirements if running one
-
-```
-firewall-cmd --permanent --add-port=6443/tcp
-firewall-cmd --permanent --zone=trusted --add-source=10.42.0.0/16 
-firewall-cmd --permanent --zone=trusted --add-source=10.43.0.0/16 
-firewall-cmd --reload
-```
-
 Pass custom arguments to k3s install (We use a custom traefik in the immunoodle namespace and this has been tested on k3s v 1.3.35)
 
-```
+```shell
 curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.33.5+k3s1 sh -s - --disable=traefik
-sudo kubectl get nodes
+sudo ln -s /usr/local/bin/kubectl /bin/kubectl
+sudo kubectl get node -o wide
 ```
 
 #### Create immunoodle namespace
 
-```bash
-kubectl create ns immunoodle
+These instructions expect all components of immunoodle to be installed in the immunoodle namespace.
+
+```shell
+sudo kubectl create ns immunoodle
 ```
 
 #### Install cert-manager
 
-```
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.1/cert-manager.yaml
+```shell
+sudo kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.1/cert-manager.yaml
 ```
 
-Import your own certificate if you have your own:
-
-Place the PEM encoded certificate you received from your CA in a file named `tls.crt`. Append the (entire) intermediate chain to that file, so at the top you have your certificate and below, in order, the certificate chain.
-
-Place your PEM encoded private key in a file named `tls.key`. 
-
-```
- kubectl create secret generic
- cert-official --from-file=tls.crt=tls.crt --from-file=tls.key=tls.key -n immunoodle
-```
-Otherwise - create your own root CA:
-
-```
-cat <<EOF | kubectl apply -f -
+```shell
+cat <<EOF | sudo kubectl apply -f -
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
@@ -111,14 +105,14 @@ EOF
 
 Confirm CA is ready
 
-```
-kubectl describe ClusterIssuer -n cert-manager
+```shell
+sudo kubectl describe ClusterIssuer -n cert-manager
 ```
 
 Create intermediate CA
 
-```
-cat <<EOF | kubectl apply -f -
+```shell
+cat <<EOF | sudo kubectl apply -f -
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -151,53 +145,42 @@ EOF
 
 Copy root-ca-secret to immunoodle namespace
 
-```
- kubectl get secret root-ca-secret --namespace=cert-manager -o yaml \
+```shell
+sudo kubectl get secret root-ca-secret --namespace=cert-manager -o yaml \
   | sed 's/namespace: cert-manager/namespace: immunoodle/' \
-  | kubectl create -f -
+  | sudo kubectl create -f -
 ```
 
 #### Export self-signed Root CA for import to browsers
 
-```
-kubectl -n cert-manager get secret root-ca-secret -o jsonpath='{.data.tls\.crt}' | base64 -d > cert.crt
-```
-
-```
-kubectl -n cert-manager get secret root-ca-secret -o jsonpath='{.data.tls\.key}' | base64 -d > cert.key
-```
-
-Create a cert that can be imported into keychain or cert manager 
-
-```
-openssl pkcs12 -export -out immunoodle.pfx -inkey cert.key -in cert.crt
-
+```shell
+sudo kubectl -n cert-manager get secret root-ca-secret -o jsonpath='{.data.tls\.crt}' | base64 -d > cert.crt
 ```
 
 ### Traefik
 
 Traefik is a Ingress Controller that provides access to the various Immunoodle Components
 
-```
-kubectl -n immunoodle apply -f k8s-manifests/traefik.yml
+```shell
+sudo kubectl -n immunoodle apply -f k8s-manifests/traefik.yml
 ```
 
 ### Dex
 
 Dex is used for auth for the Immunoodle Components. First we will spin up the deployment, spin it down to copy template files into place
 
-```
+```shell
 Create a unique id for each static client in k8s-manifests/dex.yml
-kubectl -n immunoodle apply -f k8s-manifests/dex.yml
-kubectl -n immunoodle scale deploy dex --replicas=0
+sudo kubectl -n immunoodle apply -f k8s-manifests/dex.yml
+sudo kubectl -n immunoodle scale deploy dex --replicas=0
 # This will get you into a shell with access to the pvc
-kubectl -n immunoodle run -it --rm debug --image=busybox --restart=Never   --overrides='{"spec":{"containers":[{"name":"debug","image":"busybox","stdin":true,"tty":true,"volumeMounts":[{"name":"storage","mountPath":"/var/dex"}]}],"volumes":[{"name":"storage","persistentVolumeClaim":{"claimName":"dex"}}]}}'
+sudo kubectl -n immunoodle run -it --rm debug --image=busybox --restart=Never   --overrides='{"spec":{"containers":[{"name":"debug","image":"busybox","stdin":true,"tty":true,"volumeMounts":[{"name":"storage","mountPath":"/var/dex"}]}],"volumes":[{"name":"storage","persistentVolumeClaim":{"claimName":"dex"}}]}}'
 # run this in another terminal window/tab
-kubectl -n immunoodle cp templates/web.zip debug:/var/dex/
+sudo kubectl -n immunoodle cp templates/web.zip debug:/var/dex/
 # in the other terminal window/tab
 cd /var/dex && unzip /var/dex/web.zip && exit
 # scale it back up
-kubectl -n immunoodle scale deploy dex --replicas=1
+sudo kubectl -n immunoodle scale deploy dex --replicas=1
 ```
 
 ### Whoami
@@ -205,7 +188,7 @@ kubectl -n immunoodle scale deploy dex --replicas=1
 Whoami let's us test the components installed thus far
 
 ```
-kubectl -n immunoodle apply -f k8s-manifests/whoami.yml
+sudo kubectl -n immunoodle apply -f k8s-manifests/whoami.yml
 ```
 
 *Use the whoami application to confirm the basic components such as traefik and cert-manager work thus far.*
@@ -215,7 +198,7 @@ kubectl -n immunoodle apply -f k8s-manifests/whoami.yml
 PostgresQL is used for backing database for Dex for Auth and for the various Immunoodle Components.
 
 ```
-kubectl -n immunoodle apply -f k8s-manifests/postgresql.yml
+sudo kubectl -n immunoodle apply -f k8s-manifests/postgresql.yml
 ```
 
 ### Redis
@@ -223,7 +206,7 @@ kubectl -n immunoodle apply -f k8s-manifests/postgresql.yml
 Redis is the key-value database for Immunoodle
 
 ```
-kubectl -n immunoodle apply -f k8s-manifests/redis.yml
+sudo kubectl -n immunoodle apply -f k8s-manifests/redis.yml
 ```
 
 ### Minio
@@ -231,7 +214,7 @@ kubectl -n immunoodle apply -f k8s-manifests/redis.yml
 Minio provides storage for Immunoodle
 
 ```
-kubectl -n immunoodle apply -f k8s-manifests/minio.yml
+sudo kubectl -n immunoodle apply -f k8s-manifests/minio.yml
 ```
 
 
@@ -256,7 +239,7 @@ Once the Immunoodle Infrastructure has been deployed and tested, move onto Imuno
 Signup creates and manages local users for the Immunoodle application stack as integrates with your choice of Oauth2 provider.
 
 ```
-kubectl -n immunoodle apply -f k8s-manifests/signup.yml
+sudo kubectl -n immunoodle apply -f k8s-manifests/signup.yml
 ```
 
 ### Worker
@@ -264,7 +247,7 @@ kubectl -n immunoodle apply -f k8s-manifests/signup.yml
 Worker handles task management for data processing in the Immunoodle application stack
 
 ```
-kubectl -n immunoodle apply -f k8s-manifests/worker.yml
+sudo kubectl -n immunoodle apply -f k8s-manifests/worker.yml
 ```
 
 ### API
@@ -272,7 +255,7 @@ kubectl -n immunoodle apply -f k8s-manifests/worker.yml
 API provides API endpoints for data processing in the Immunoodle application stack
 
 ```
-kubectl -n immunoodle apply -f k8s-manifests/api.yml
+sudo kubectl -n immunoodle apply -f k8s-manifests/api.yml
 ```
 
 ### DataPortal
@@ -280,11 +263,11 @@ kubectl -n immunoodle apply -f k8s-manifests/api.yml
 Data Portal Database
 
 ```
-kubectl -n immunoodle exec -it deploy/postgresql -- psql -U postgres postgres < db-dumps/dataportal.sql
+sudo kubectl -n immunoodle exec -it deploy/postgresql -- psql -U postgres postgres < db-dumps/dataportal.sql
 ```
 
 ```
-kubectl -n immunoodle apply -f k8s-manifests/data-portal.yml
+sudo kubectl -n immunoodle apply -f k8s-manifests/data-portal.yml
 ```
 
 
@@ -295,12 +278,12 @@ I-SPI is an interactive R Shiny application for processing, analyzing, and visua
 Set-up the database for the application first. Find the name of the postgresql pod in the immunoodle namespace:
 
 ```
-kubectl -n immunoodle exec -it deploy/postgresql -- psql -U postgres -c "CREATE DATABASE immunoodle;"
-kubectl -n immunoodle exec -it deploy/postgresql -- psql -U postgres immunoodle < db-dumps/i-spi-db.sql
+sudo kubectl -n immunoodle exec -it deploy/postgresql -- psql -U postgres -c "CREATE DATABASE immunoodle;"
+sudo kubectl -n immunoodle exec -it deploy/postgresql -- psql -U postgres immunoodle < db-dumps/i-spi-db.sql
 ```
 
 ```
-kubectl -n immunoodle apply -f k8s-manifests/ispi.yml
+sudo kubectl -n immunoodle apply -f k8s-manifests/ispi.yml
 ```
 
 
