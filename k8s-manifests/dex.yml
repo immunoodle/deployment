@@ -162,16 +162,16 @@ metadata:
     kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
- rules:
- - http:
-     paths:
-     - path: /dex/account
-       pathType: Prefix
-       backend:
-         service:
-           name: dex-account
-           port:
-             number: 8080
+  rules:
+  - http:
+      paths:
+      - path: /dex/account
+        pathType: Prefix
+        backend:
+          service:
+            name: dex-account
+            port:
+              number: 8080
   tls:
   - hosts:
     - IMMUNOODLE_HOSTNAME
