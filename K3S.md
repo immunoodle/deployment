@@ -17,7 +17,7 @@ sudo kubectl get node -o wide
 
 ## CoreDNS
 
-Run the following commands to configure DNS within K3s to allow internal communication between
+Run the following commands to configure DNS within K3s to allow internal communication between services.
 
 ```shell
 sudo kubectl apply -f k8s-manifests/coredns.yml
@@ -36,6 +36,8 @@ sudo kubectl create ns immunoodle
 
 ```shell
 sudo kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.1/cert-manager.yaml
+# Wait for pods to be available before continuing
+sudo kubectl wait -n cert-manager --for=condition=ready pod -l app=cert-manager --timeout=5m
 ```
 
 ```shell
@@ -128,5 +130,5 @@ sudo kubectl get secret root-ca-secret --namespace=cert-manager -o yaml \
 ## Export self-signed Root CA for import to browsers
 
 ```shell
-sudo kubectl -n cert-manager get secret root-ca-secret -o jsonpath='{.data.tls\.crt}' | base64 -d > cert.crt
+sudo kubectl -n cert-manager get secret root-ca-secret -o jsonpath='{.data.tls\.crt}' | base64 -d > immunoodle-root-ca.crt
 ```

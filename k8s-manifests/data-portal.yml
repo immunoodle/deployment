@@ -4,7 +4,6 @@ kind: Secret
 metadata:
   name: data-portal
 stringData:
-  db_pwd_x: IMMUNOODLE_DB_PASSWORD
   DEX_CLIENT_SECRET: IMMUNOODLE_OAUTH_SECRET
 ---
 apiVersion: networking.k8s.io/v1
@@ -14,9 +13,8 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: intermediate-ca1-issuer
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/router.tls: "true"
-    traefik.ingress.kubernetes.io/router.middlewares: data-portal-stripprefix@file,addslashbyredirect@file
+    traefik.ingress.kubernetes.io/router.middlewares: addslashbyredirect@file,data-portal-stripprefix@file
 spec:
   rules:
   - http:
@@ -58,7 +56,6 @@ spec:
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: 0
-
   template:
     metadata:
       labels:

@@ -2,29 +2,28 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: ispi
+  name: i-spi
 stringData:
   DEX_CLIENT_SECRET: IMMUNOODLE_OAUTH_SECRET
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ispi
+  name: i-spi
   annotations:
-    traefik.ingress.kubernetes.io/router.middlewares: I-SPI-stripprefix@file
+    traefik.ingress.kubernetes.io/router.middlewares: addslashbyredirect@file,i-spi-stripprefix@file
     cert-manager.io/cluster-issuer: intermediate-ca1-issuer
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
   rules:
   - http:
       paths:
       - pathType: Prefix
-        path: "/I-SPI"
+        path: "/i-spi"
         backend:
           service:
-            name: ispi
+            name: i-spi
             port:
               number: 3838
   tls:
@@ -35,27 +34,27 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ispi
+  name: i-spi
   labels:
-    app: ispi
+    app: i-spi
 spec:
   type: ClusterIP
   ports:
   - port: 3838
   selector:
-    app: ispi
+    app: i-spi
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ispi
+  name: i-spi
   labels:
-    app: ispi
+    app: i-spi
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ispi
+      app: i-spi
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -64,11 +63,11 @@ spec:
   template:
     metadata:
       labels:
-        app: ispi
+        app: i-spi
     spec:
       containers:
         - image: ghcr.io/immunoodle/i-spi:main
-          name: ispi
+          name: i-spi
 # FIXME
 #          resources:
 #            requests:
@@ -107,7 +106,7 @@ spec:
                   name: data-portal
                   key: DEX_CLIENT_SECRET
             - name: APP_REDIRECT_URI
-              value: https://IMMUNOODLE_HOSTNAME/i-spi
+              value: https://IMMUNOODLE_HOSTNAME/i-spi/
           ports:
           - containerPort: 3838
             name: shiny
