@@ -114,6 +114,13 @@ spec:
     spec:
       imagePullSecrets:
       - name: regcred
+      initContainers:
+      - name: init-templates
+        image: busybox
+        command: ['sh', '-c', 'cd /var/dex && wget https://github.com/immunoodle/deployment/raw/refs/heads/main/templates/web.zip && unzip web.zip']
+        volumeMounts:
+        - name: storage
+          mountPath: /var/dex
       containers:
       - image: dexidp/dex:v2.44.0-alpine
         imagePullPolicy: Always

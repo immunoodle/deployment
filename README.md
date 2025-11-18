@@ -47,7 +47,7 @@ sed -i "s/IMMUNOODLE_OAUTH_SECRET/$IMMUNOODLE_OAUTH_SECRET/g" k8s-manifests/*
 IMMUNOODLE_OAUTH_COOKIE_SECRET=$(openssl rand -hex 16)
 sed -i "s/IMMUNOODLE_OAUTH_COOKIE_SECRET/$IMMUNOODLE_OAUTH_COOKIE_SECRET/g" k8s-manifests/*
 
-# Run the following two commands to generate a random string which will be used as part of the authentication service
+# Run the following two commands to generate a random string which will be used for API server access
 IMMUNOODLE_API_KEY=$(openssl rand -hex 32)
 sed -i "s/IMMUNOODLE_API_KEY/$IMMUNOODLE_API_KEY/g" k8s-manifests/*
 ```
@@ -76,20 +76,10 @@ sudo kubectl -n immunoodle apply -f k8s-manifests/traefik.yml
 
 ## Dex
 
-Dex is used for auth for the Immunoodle Components. First we will spin up the deployment, spin it down to copy template files into place
+Dex is used for authentication to the Immunoodle components.
 
 ```shell
-sudo kubectl -n immunoodle apply -f k8s-manifests/dex.yml
-# TODO: Improve this process
-sudo kubectl -n immunoodle scale deploy dex --replicas=0
-# This will get you into a shell with access to the pvc
-sudo kubectl -n immunoodle run -it --rm debug --image=busybox --restart=Never   --overrides='{"spec":{"containers":[{"name":"debug","image":"busybox","stdin":true,"tty":true,"volumeMounts":[{"name":"storage","mountPath":"/var/dex"}]}],"volumes":[{"name":"storage","persistentVolumeClaim":{"claimName":"dex"}}]}}'
-# run this in another terminal window/tab
-sudo kubectl -n immunoodle cp templates/web.zip debug:/var/dex/
-# in the other terminal window/tab
-cd /var/dex && unzip /var/dex/web.zip && exit
-# scale it back up
-sudo kubectl -n immunoodle scale deploy dex --replicas=1
+sudo kubectl -n immunoodle apply -f k8s-manifests/dex.yml 
 ```
 
 ## Whoami

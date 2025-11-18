@@ -37,7 +37,7 @@ sudo kubectl create ns immunoodle
 ```shell
 sudo kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.1/cert-manager.yaml
 # Wait for pods to be available before continuing
-sudo kubectl wait -n cert-manager --for=condition=ready pod -l app=cert-manager --timeout=5m
+sudo kubectl wait -n cert-manager --for=condition=ready pod -l app=webhook --timeout=5m
 ```
 
 ```shell
