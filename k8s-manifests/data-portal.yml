@@ -153,6 +153,8 @@ spec:
               value: "https://IMMUNOODLE_HOSTNAME/data-portal"
             - name: DEX_CA_CERT_PATH
               value: /etc/secrets/ca.crt
+            - name: DEX_INTERNAL_URL
+              value: "http://dex:5556/dex"
           ports:
           - containerPort: 3838
             name: shiny

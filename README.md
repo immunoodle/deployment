@@ -1,16 +1,16 @@
-# Deployment
+# Immunoodle Deployment
 
-TODO: Short blurb on what Immunoodle is.
+TODO: Add short blurb on what Immunoodle is.
 
-This repo provides instructions and manifests for deploying Immunoodle in your choice of kubernetes-based orchestration platform.
+This repo provides instructions and manifests for deploying Immunoodle in your choice of Kubernetes clusters.
 
-If you don't a Kubernetes cluster, you can use [k3s](https://rancher.com/docs/k3s/latest/en/). Instructions are provided below.
+If you don't have a Kubernetes cluster, you can use [k3s](https://rancher.com/docs/k3s/latest/en/). K3s installation instructions are provided below.
 
-Deploy the resources in the order listed below.
+Deploy the applications and services in the order listed in the document.
 
 ## Hardware Requirements
 
-To run all the compoenents of immunoodle, you'll need at least 2 CPU cores and 16GB of RAM.  These instructions have been tested on Rocky8, Rocky9, and Ubuntu 24.04.3.
+To run all the components of immunoodle, you'll need at least 2 CPU cores and 16GB of RAM.  These instructions have been tested on Rocky8, Rocky9, and Ubuntu 24.04.3.
 
 ## Configuration for your environment
 
@@ -20,19 +20,19 @@ On the system where you'll be installing immunoodle, clone this git repository a
 git clone https://github.com/immunoodle/deployment.git
 cd deployment
 
-# Replace PUT_YOUR_HOSTNAME_HERE with the hostname that users will use to access the immunoodle service, then run the command
+# Replace PUT_YOUR_HOSTNAME_HERE with the hostname that users will use to access the immunoodle service, then run the `sed` command
 sed -i "s/IMMUNOODLE_HOSTNAME/PUT_YOUR_HOSTNAME_HERE/g" k8s-manifests/*
 
 # Replace PUT_YOUR_IP_ADDRESS_HERE with the IP address used to access this host, then run the command
 sed -i "s/IMMUNOODLE_IP_ADDRESS/PUT_YOUR_IP_ADDRESS_HERE/g" k8s-manifests/*
 
-# Replace PUT_YOUR_POSTGRES_PASSWORD_HERE with a strong password for the `postgres` user in PostgreSQL, then run the command
+# Replace PUT_YOUR_POSTGRES_PASSWORD_HERE with a strong password for the `postgres` user in PostgreSQL, then run the `sed` command
 sed -i "s/IMMUNOODLE_POSTGRES_PASSWORD/PUT_YOUR_POSTGRES_PASSWORD_HERE/g" k8s-manifests/*
 
 # Replace PUT_YOUR_REDIS_PASSWORD_HERE with a strong password used for accessing REDIS, then run the command
 sed -i "s/IMMUNOODLE_REDIS_AUTH/PUT_YOUR_REDIS_PASSWORD_HERE/g" k8s-manifests/*
 
-# Replace PUT_YOUR_MINIO_ROOT_PASSWORD_HERE with a strong password used for accessing Minio (Local S3 Object Storage), then run the command
+# Replace PUT_YOUR_MINIO_ROOT_PASSWORD_HERE with a strong password used for accessing Minio (local S3 Object Storage), then run the `sed` command
 sed -i "s/IMMUNOODLE_MINIO_ROOT_PASSWORD/PUT_YOUR_MINIO_ROOT_PASSWORD_HERE/g" k8s-manifests/*
 
 # Run the following two commands to generate a random string which will be used as part of the authentication service
@@ -47,7 +47,7 @@ sed -i "s/IMMUNOODLE_OAUTH_SECRET/$IMMUNOODLE_OAUTH_SECRET/g" k8s-manifests/*
 IMMUNOODLE_OAUTH_COOKIE_SECRET=$(openssl rand -hex 16)
 sed -i "s/IMMUNOODLE_OAUTH_COOKIE_SECRET/$IMMUNOODLE_OAUTH_COOKIE_SECRET/g" k8s-manifests/*
 
-# Run the following two commands to generate a random string which will be used for API server access
+# Run the following two commands to generate a random string which will be used for internal API server access
 IMMUNOODLE_API_KEY=$(openssl rand -hex 32)
 sed -i "s/IMMUNOODLE_API_KEY/$IMMUNOODLE_API_KEY/g" k8s-manifests/*
 ```
@@ -60,7 +60,7 @@ If you don't have Kubernetes already installed, you can follow these instruction
 
 ## Create immunoodle namespace
 
-These instructions expect all components of immunoodle to be installed in the immunoodle namespace.  If you haven't already created the `immunoodle` namespace, please do it now.
+These instructions expect all components of immunoodle to be installed in the immunoodle namespace. If you haven't already created the `immunoodle` namespace, please do it now.
 
 ```shell
 sudo kubectl create ns immunoodle
@@ -68,7 +68,7 @@ sudo kubectl create ns immunoodle
 
 ## Traefik
 
-Traefik is a Ingress Controller that provides access to the various Immunoodle Components
+Traefik is a Ingress Controller that provides access to the various Immunoodle Components. Run the following command to install Traefik.
 
 ```shell
 sudo kubectl -n immunoodle apply -f k8s-manifests/traefik.yml
@@ -76,7 +76,7 @@ sudo kubectl -n immunoodle apply -f k8s-manifests/traefik.yml
 
 ## Dex
 
-Dex is used for authentication to the Immunoodle components.
+Dex is an Identity Provider that's used for authentication to the Immunoodle components.  Run the following command to install Dev.
 
 ```shell
 sudo kubectl -n immunoodle apply -f k8s-manifests/dex.yml 
@@ -84,60 +84,105 @@ sudo kubectl -n immunoodle apply -f k8s-manifests/dex.yml
 
 ## Whoami
 
-Whoami lets us test the components installed thus far
+Whoami lets us test the components installed thus far.  Run the following command to install `whoami`.
 
 ```shell
 sudo kubectl -n immunoodle apply -f k8s-manifests/whoami.yml
-# TODO: Add test commands
 ```
 
-*Use the whoami application to confirm the basic components such as traefik and cert-manager work thus far. You'll need to use Signup to create the first user account*
+To test Dex and Traefik, follow these steps:
+
+1. In your browser, navigate to: https://PUT_IMMUNOODLE_HOSTNAME_HERE/whoami
+2. You will be redirected to Dex. Click `Signup` to create a user account
+3. Provide your name, email address and create a password, then click `SIGNUP`
+4. Provide your email address and password on the login screen
+5. After sucessful login, you'll be redirected back to `whoami`.
+
+`whoami` displays a variety of information about the HTTP request.  Find the `X-Forwarded-Email` attribute to see that your email address is specified as the authenticated user.
 
 ## PostgreSQL
 
-PostgresQL is used for backing database for Dex for Auth and for the various Immunoodle Components.
+PostgreSQL is used as the relational database for many of the Immunoodle components.  Run the following commands to install PostgreSQL.
 
 ```shell
 sudo kubectl -n immunoodle apply -f k8s-manifests/postgresql.yml
-# TODO: Add test commands
+sudo kubectl -n immunoodle wait --for=condition=ready pod -l app=postgresql --timeout=5m
+```
+
+To confirm PostgreSQL is available, run the following command.  If successfull, it will display the version of PostgreSQL.
+
+```shell
+sudo kubectl -n immunoodle exec -it deploy/postgresql -- psql -U postgres -c "select version();"
+#
+# Example output:
+#
+#                                                         version
+#   ---------------------------------------------------------------------------------------------------------------------
+#   PostgreSQL 17.2 (Debian 17.2-1.pgdg120+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14) 12.2.0, 64-bit
+#   (1 row)
+# 
 ```
 
 ## Redis
 
-Redis is the key-value database for Immunoodle
+Redis is the key-value database. Run the following commands to install Redis.
 
 ```shell
 sudo kubectl -n immunoodle apply -f k8s-manifests/redis.yml
-# TODO: Add test commands
+sudo kubectl -n immunoodle wait --for=condition=ready pod -l app=redis --timeout=5m
+```
+
+To confirm Redis is available, run the following command. When prompted, provide the password you select above.
+
+```shell
+sudo kubectl -n immunoodle exec -it deploy/redis -- redis-cli --askpass INFO SERVER
+#  
+# Example output:
+# 
+#   # Server
+#   redis_version:8.2.3
+#   redis_git_sha1:00000000
+#   redis_git_dirty:1
+#   redis_build_id:c978de5219ded02d
+#   redis_mode:standalone
+#   os:Linux 4.18.0-553.81.1.el8_10.x86_64 x86_64
+#   ...
+# 
 ```
 
 ## Minio
 
-Minio provides storage for Immunoodle
+Minio provides S3-compatible object storage. Run the following commands to install Minio.
 
 ```shell
 sudo kubectl -n immunoodle apply -f k8s-manifests/minio.yml
-# TODO: Add test commands
+sudo kubectl -n immunoodle wait --for=condition=ready pod -l app=minio --timeout=5m
 ```
 
-Once the Immunoodle Infrastructure has been deployed and tested, move onto Imunoodle application deployment.
+To confirm Minio is available, run the following command. If available, you'll get a `HTTP/1.1 200 OK` response.
+
+```shell
+sudo kubectl -n immunoodle exec -it deploy/minio -- curl localhost:9000/minio/health/ready -I | head -1
+```
 
 ## Applications
 
 ### Worker
 
-Worker handles task management for data processing in the Immunoodle application stack
+Worker handles task management for data processing. Run the following commands to install the Worker component.
 
 ```shell
 sudo kubectl -n immunoodle apply -f k8s-manifests/worker.yml
+sudo kubectl -n immunoodle wait --for=condition=ready pod -l app=worker --timeout=5m
 ```
 
 ### API
 
-API provides API endpoints for data processing in the Immunoodle application stack
+API provides API endpoints for data processing. Run the following commands to install the API component.
 
 ```shell
 sudo kubectl -n immunoodle apply -f k8s-manifests/api.yml
+sudo kubectl -n immunoodle wait --for=condition=ready pod -l app=api --timeout=5m
 ```
 
 ### Data Portal

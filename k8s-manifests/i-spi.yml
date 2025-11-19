@@ -29,7 +29,7 @@ spec:
   tls:
   - hosts:
     - IMMUNOODLE_HOSTNAME
-    secretName: cert-secret         
+    secretName: cert-secret
 ---
 apiVersion: v1
 kind: Service
@@ -76,7 +76,7 @@ spec:
 #              cpu: "10"
           env:
             - name: db
-              value: "postgres"
+              value: "immunoodle"
             - name: db_host
               value: "postgresql"
             - name: db_port
@@ -96,6 +96,8 @@ spec:
             - name: REDIRECT_URL
               value: ???
 
+            - name: PGSSLCERT
+              value: "/tmp/postgresql.crt"
             - name: DEX_ISSUER
               value: "https://IMMUNOODLE_HOSTNAME/dex"
             - name: DEX_CLIENT_ID
