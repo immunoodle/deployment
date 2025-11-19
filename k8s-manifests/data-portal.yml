@@ -69,7 +69,7 @@ spec:
           - key: ca.crt
             path: ca.crt
       containers:
-        - image: ghcr.io/immunoodle/data-portal:sha-53e4f85
+        - image: ghcr.io/immunoodle/data-portal:sha-6196384
           volumeMounts:
           - name: crt-mount
             mountPath: "/etc/secrets"
@@ -118,24 +118,17 @@ spec:
               value: DEBUG
             - name: SHINY_LOG_STDERR
               value: "1"
-            #FIXME
-#            - name: AWS_ACCESS_KEY_ID
-#              valueFrom:
-#                secretKeyRef:
-#                  name: data-portal
-#                  key: AWS_ACCESS_KEY_ID
-            #FIXME
-#            - name: AWS_SECRET_ACCESS_KEY
-#              valueFrom:
-#                secretKeyRef:
-#                  name: data-portal
-#                  key: AWS_SECRET_ACCESS_KEY
-            #FIXME
+            - name: AWS_ACCESS_KEY_ID
+              value: "root"
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio
+                  key: MINIO_ROOT_PASSWORD
             - name: AWS_DEFAULT_REGION
-              value: ??
-            #FIXME
+              value: us-east-1
             - name: S3_BUCKET_NAME
-              value: ??
+              value: data-portal
             - name: DEX_ISSUER
               value: "https://IMMUNOODLE_HOSTNAME/dex"
             - name: DEX_CLIENT_ID
@@ -150,7 +143,7 @@ spec:
             - name: HOSTNAME
               value: "https://IMMUNOODLE_HOSTNAME"
             - name: DEX_LOGOUT_ENDPOINT
-              value: "https://IMMUNOODLE_HOSTNAME/data-portal"
+              value: "https://IMMUNOODLE_HOSTNAME/data-portal/"
             - name: DEX_CA_CERT_PATH
               value: /etc/secrets/ca.crt
             - name: DEX_INTERNAL_URL

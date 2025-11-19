@@ -152,11 +152,13 @@ sudo kubectl -n immunoodle exec -it deploy/redis -- redis-cli --askpass INFO SER
 
 ## Minio
 
-Minio provides S3-compatible object storage. Run the following commands to install Minio.
+Minio provides S3-compatible object storage. Run the following commands to install Minio and create the `data-portal` bucket.
 
 ```shell
 sudo kubectl -n immunoodle apply -f k8s-manifests/minio.yml
 sudo kubectl -n immunoodle wait --for=condition=ready pod -l app=minio --timeout=5m
+sudo kubectl -n immunoodle exec -it deploy/minio -- sh -c 'mc alias set minio http://localhost:9000 root $MINIO_ROOT_PASSWORD'
+sudo kubectl -n immunoodle exec -it deploy/minio -- mc mb minio/data-portal
 ```
 
 To confirm Minio is available, run the following command. If available, you'll get a `HTTP/1.1 200 OK` response.
