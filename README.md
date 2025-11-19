@@ -88,6 +88,7 @@ Whoami lets us test the components installed thus far.  Run the following comman
 
 ```shell
 sudo kubectl -n immunoodle apply -f k8s-manifests/whoami.yml
+sudo kubectl -n immunoodle wait --for=condition=ready pod -l app=whoami --timeout=5m
 ```
 
 To test Dex and Traefik, follow these steps:
@@ -197,6 +198,7 @@ gunzip -c db-dumps/dataportal.sql.gz | sudo kubectl -n immunoodle exec -it deplo
 
 ```shell
 sudo kubectl -n immunoodle apply -f k8s-manifests/data-portal.yml
+sudo kubectl -n immunoodle wait --for=condition=ready pod -l app=data-portal --timeout=5m
 ```
 
 ### I-SPI
@@ -212,4 +214,5 @@ sudo kubectl -n immunoodle exec -it deploy/postgresql -- psql -U postgres immuno
 
 ```shell
 sudo kubectl -n immunoodle apply -f k8s-manifests/i-spi.yml
+sudo kubectl -n immunoodle wait --for=condition=ready pod -l app=i-spi --timeout=5m
 ```
