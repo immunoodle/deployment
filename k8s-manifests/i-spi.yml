@@ -107,6 +107,8 @@ spec:
                   key: DEX_CLIENT_SECRET
             - name: APP_REDIRECT_URI
               value: https://IMMUNOODLE_HOSTNAME/i-spi/
+            - name: DEX_INTERNAL_URL
+              value: "http://dex:5556/dex"
           ports:
           - containerPort: 3838
             name: shiny
