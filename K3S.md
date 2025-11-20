@@ -26,7 +26,7 @@ sudo kubectl -n kube-system rollout restart deploy coredns
 
 ## Create immunoodle namespace
 
-These instructions expect all components of immunoodle to be installed in the immunoodle namespace.
+These instructions expect all components of immunoodle to be installed in the immunoodle namespace. Run the following command to create the namespace.
 
 ```shell
 sudo kubectl create ns immunoodle
@@ -34,11 +34,15 @@ sudo kubectl create ns immunoodle
 
 ## Install cert-manager
 
+To keep communication secure, `cert-manager` is used to manage the TLS certificates for the environment.  Run the following commands to install cert-manager.
+
 ```shell
 sudo kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.1/cert-manager.yaml
 # Wait for pods to be available before continuing
 sudo kubectl wait -n cert-manager --for=condition=ready pod -l app=webhook --timeout=5m
 ```
+
+Run the following commands to create the `root-ca` certificate.  This certificate will be used to sign the intermediate certificate.
 
 ```shell
 cat <<EOF | sudo kubectl apply -f -
@@ -79,13 +83,13 @@ spec:
 EOF
 ```
 
-Confirm CA is ready
+Confirm CA is ready by running the following command.  You should see a status of `Ready`.
 
 ```shell
 sudo kubectl describe ClusterIssuer -n cert-manager
 ```
 
-Create intermediate CA
+Create intermediate CA by running the following commands.
 
 ```shell
 cat <<EOF | sudo kubectl apply -f -
@@ -127,7 +131,7 @@ sudo kubectl get secret root-ca-secret --namespace=cert-manager -o yaml \
   | sudo kubectl create -f -
 ```
 
-## Export self-signed Root CA for import to browsers
+Export Root CA certificate. This cert can be imported into user's browsers to trust the encryption between the browser and immunoodle.
 
 ```shell
 sudo kubectl -n cert-manager get secret root-ca-secret -o jsonpath='{.data.tls\.crt}' | base64 -d > immunoodle-root-ca.crt
