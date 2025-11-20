@@ -114,6 +114,9 @@ To confirm PostgreSQL is available, run the following command.  If successfull, 
 
 ```shell
 sudo kubectl -n immunoodle exec -it deploy/postgresql -- psql -U postgres -c "select version();"
+```
+
+```shell
 #
 # Example output:
 #
@@ -137,6 +140,9 @@ To confirm Redis is available, run the following command. When prompted, provide
 
 ```shell
 sudo kubectl -n immunoodle exec -it deploy/redis -- redis-cli --askpass INFO SERVER
+```
+
+```shell
 #  
 # Example output:
 # 
